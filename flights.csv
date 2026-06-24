@@ -1,0 +1,4 @@
+Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price
+1,Jordan,Germany,AMM,BER,2026-08-01,999
+3,Jordan,UK,AMM,LHR,2026-10-20,500
+4,Palestine,France,GZA,CDG,2026-11-10,400

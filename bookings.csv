@@ -1,0 +1,4 @@
+Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid
+1,1,sara@gmail.com,Sara Ahmed,0599123456,Economy,150
+2,2,ali@gmail.com,Ali Hassan,0598765432,Business,600
+3,1,mona@gmail.com,Mona Khalid,0597654321,FirstClass,750
