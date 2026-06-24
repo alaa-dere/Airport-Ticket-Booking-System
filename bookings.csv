@@ -4,3 +4,4 @@ Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid
 3,1,mona@gmail.com,Mona Khalid,0597654321,FirstClass,750
 4,1,alaa@najah.edu,Alaa,+9705990000,Business,225.0
 5,1,sara@gmail.com,Sara Ahmed,0599123456,Business,225.0
+6,1,manager.test@najah.edu,Sami,123456,FirstClass,375.0
