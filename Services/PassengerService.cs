@@ -34,5 +34,33 @@ namespace TASK2.Services
 
             return filteredFlights;
         }
+
+        public bool BookFlight(int flightId, string passengerEmail, string passengerName, string passengerPhone, FlightClass selectedClass)
+        {
+            var flight = _flightRepo.GetAll().FirstOrDefault(f => f.Id == flightId);
+            
+            if (flight == null)
+            {
+                return false;
+            }
+
+            decimal finalPrice = flight.GetPriceForClass(selectedClass);
+
+            var newBooking = new Booking
+            {
+                FlightId = flightId,
+                PassengerEmail = passengerEmail,
+                PassengerName = passengerName,
+                PassengerPhone = passengerPhone,
+                SelectedClass = selectedClass,
+                PricePaid = finalPrice
+            };
+
+            _bookingRepo.AddBooking(newBooking);
+            return true;
+        }
+
     }
+
+    
 }
