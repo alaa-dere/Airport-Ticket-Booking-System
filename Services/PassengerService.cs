@@ -29,10 +29,10 @@ namespace TASK2.Services
             var flights = _flightRepo.GetAll();
 
             return flights.Where(f =>
-                (string.IsNullOrEmpty(departureCountry) || f.DepartureCountry.Equals(departureCountry, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(destinationCountry) || f.DestinationCountry.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(departureAirport) || f.DepartureAirport.Equals(departureAirport, StringComparison.OrdinalIgnoreCase)) &&
-                (string.IsNullOrEmpty(arrivalAirport) || f.ArrivalAirport.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(departureCountry) || f.DepartureCountry?.Equals(departureCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(destinationCountry) || f.DestinationCountry?.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(departureAirport) || f.DepartureAirport?.Equals(departureAirport, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(arrivalAirport) || f.ArrivalAirport?.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase) == true) &&
                 (!departureDate.HasValue || f.DepartureTime.Date == departureDate.Value.Date) &&
                 (!maxPrice.HasValue || f.GetPriceForClass(flightClass ?? FlightClass.Economy) <= maxPrice.Value)
             ).ToList();
@@ -64,7 +64,7 @@ namespace TASK2.Services
         }
         public bool CancelBooking(int bookingId, string passengerEmail)
         {
-        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
             
             if (booking == null)
                 return false;
@@ -75,7 +75,7 @@ namespace TASK2.Services
        
         public bool ModifyBooking(int bookingId, string passengerEmail, int newFlightId, FlightClass newClass)
         {
-        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
             
             if (booking == null)
                 return false;
@@ -96,7 +96,7 @@ namespace TASK2.Services
         public List<Booking> GetMyBookings(string passengerEmail)
         {
             return _bookingRepo.GetAll()
-             .Where(b => b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase))
+             .Where(b => b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase))
              .ToList();
         }
     }
