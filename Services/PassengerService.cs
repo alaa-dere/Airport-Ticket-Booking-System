@@ -62,9 +62,43 @@ namespace TASK2.Services
             _bookingRepo.AddBooking(newBooking);
             return true;
         }
+        public bool CancelBooking(int bookingId, string passengerEmail)
+        {
+        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+            
+            if (booking == null)
+                return false;
 
+            _bookingRepo.DeleteBooking(bookingId);
+            return true;
+        }
        
+        public bool ModifyBooking(int bookingId, string passengerEmail, int newFlightId, FlightClass newClass)
+        {
+        var booking = _bookingRepo.GetAll().FirstOrDefault(b => b.Id == bookingId && b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+            
+            if (booking == null)
+                return false;
 
+            var flight = _flightRepo.GetAll().FirstOrDefault(f => f.Id == newFlightId);
+            
+            if (flight == null)
+                return false;
+
+            booking.FlightId = newFlightId;
+            booking.SelectedClass = newClass;
+            booking.PricePaid = flight.GetPriceForClass(newClass);
+            
+            _bookingRepo.UpdateBooking(booking);
+            return true;
+        }
+
+        public List<Booking> GetMyBookings(string passengerEmail)
+        {
+            return _bookingRepo.GetAll()
+             .Where(b => b.PassengerEmail.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase))
+             .ToList();
+        }
     }
 
     

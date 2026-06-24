@@ -1,47 +1,21 @@
-﻿using System;
-using TASK2.Services;
+﻿using TASK2.Services;
 using TASK2.Models;
 
-class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("=== Testing PassengerService: Search and Book ===");
+var service = new PassengerService();
 
-        var passengerService = new PassengerService();
+// 1. Search Flights
+Console.WriteLine("=== Search Flights ===");
+var flights = service.SearchFlights(departureCountry: "Jordan");
+foreach (var f in flights)
+    Console.WriteLine($"{f.Id} | {f.DepartureCountry} → {f.DestinationCountry} | {f.DepartureTime:yyyy-MM-dd} | {f.BasePrice}$");
 
-        Console.WriteLine("\n[STEP 1] Searching for flights to 'Egypt'...");
-        var searchResults = passengerService.SearchFlights(null, "Egypt", null, 200);
+// 2. Book Flight
+Console.WriteLine("\n=== Book Flight ===");
+var result = service.BookFlight(1, "sara@gmail.com", "Sara Ahmed", "0599123456", FlightClass.Business);
+Console.WriteLine(result ? "Booking Success!" : "Booking Failed!");
 
-        if (searchResults.Count > 0)
-        {
-            var targetFlight = searchResults[0];
-            Console.WriteLine($"Found Flight ID: {targetFlight.Id} | Base Price: {targetFlight.BasePrice}$");
-
-            Console.WriteLine("\n[STEP 2] Attempting to book this flight as Business Class...");
-            
-            bool isBooked = passengerService.BookFlight(
-                flightId: targetFlight.Id,
-                passengerEmail: "alaa@najah.edu",
-                passengerName: "Alaa",
-                passengerPhone: "+9705990000",
-                selectedClass: FlightClass.Business
-            );
-
-            if (isBooked)
-            {
-                Console.WriteLine("Booking Successful! Check your bookings.csv file.");
-            }
-            else
-            {
-                Console.WriteLine("Booking Failed! Flight not found.");
-            }
-        }
-        else
-        {
-            Console.WriteLine("No flights found to test booking. Make sure flights.csv has data.");
-        }
-
-        Console.WriteLine("\n=============================================");
-    }
-}
+// 3. Get My Bookings
+Console.WriteLine("\n=== My Bookings ===");
+var bookings = service.GetMyBookings("sara@gmail.com");
+foreach (var b in bookings)
+    Console.WriteLine($"{b.Id} | Flight {b.FlightId} | {b.SelectedClass} | {b.PricePaid}$");
