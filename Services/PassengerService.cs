@@ -18,21 +18,24 @@ namespace TASK2.Services
         }
 
         public List<Flight> SearchFlights(
-            string? departureCountry, 
-            string? destinationCountry, 
-            DateTime? departureDate, 
-            decimal? maxPrice)
+            string? departureCountry = null, 
+            string? destinationCountry = null, 
+            DateTime? departureDate = null, 
+            decimal? maxPrice = null,
+            string? departureAirport = null,
+            string? arrivalAirport = null,
+            FlightClass? flightClass = null)
         {
             var flights = _flightRepo.GetAll();
 
-            var filteredFlights = flights.Where(f =>
+            return flights.Where(f =>
                 (string.IsNullOrEmpty(departureCountry) || f.DepartureCountry.Equals(departureCountry, StringComparison.OrdinalIgnoreCase)) &&
                 (string.IsNullOrEmpty(destinationCountry) || f.DestinationCountry.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(departureAirport) || f.DepartureAirport.Equals(departureAirport, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(arrivalAirport) || f.ArrivalAirport.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase)) &&
                 (!departureDate.HasValue || f.DepartureTime.Date == departureDate.Value.Date) &&
-                (!maxPrice.HasValue || f.BasePrice <= maxPrice.Value)
+                (!maxPrice.HasValue || f.GetPriceForClass(flightClass ?? FlightClass.Economy) <= maxPrice.Value)
             ).ToList();
-
-            return filteredFlights;
         }
 
         public bool BookFlight(int flightId, string passengerEmail, string passengerName, string passengerPhone, FlightClass selectedClass)
@@ -59,6 +62,8 @@ namespace TASK2.Services
             _bookingRepo.AddBooking(newBooking);
             return true;
         }
+
+       
 
     }
 
