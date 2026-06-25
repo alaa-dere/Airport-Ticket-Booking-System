@@ -13,15 +13,16 @@ namespace TASK2.Services
     {
         private readonly FlightRepository _flightRepo;
         private readonly BookingRepository _bookingRepo;
-        private readonly ValidationService _validationService; 
+        private readonly ValidationService _validationService;
 
         public ManagerService()
         {
             _flightRepo = new FlightRepository();
             _bookingRepo = new BookingRepository();
-            _validationService = new ValidationService(); 
+            _validationService = new ValidationService();
         }
-public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string filePath)
+
+        public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string filePath)
         {
             var errors = new List<ValidationError>();
             var validFlights = new List<Flight>();
@@ -29,15 +30,22 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
 
             if (!System.IO.File.Exists(filePath))
             {
-                errors.Add(new ValidationError { RowNumber = 0, FieldName = "File", ErrorMessage = "The specified file does not exist." });
+                errors.Add(new ValidationError
+                {
+                    RowNumber = 0,
+                    FieldName = "File",
+                    ErrorMessage = "The specified file does not exist."
+                });
+
                 return (false, errors);
             }
 
             var lines = System.IO.File.ReadAllLines(filePath);
-            
+
             for (int i = 1; i < lines.Length; i++)
             {
-                if (string.IsNullOrWhiteSpace(lines[i])) continue;
+                if (string.IsNullOrWhiteSpace(lines[i]))
+                    continue;
 
                 var (isValid, rowErrors, validFlight) = _validationService.ValidateFlightRow(lines[i], i + 1);
 
@@ -49,13 +57,7 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
                 {
                     if (!importedFlightIds.Add(validFlight.Id))
                     {
-                        errors.Add(new ValidationError
-                        {
-                            RowNumber = i + 1,
-                            FieldName = "Id",
-                            ErrorMessage = $"Flight ID {validFlight.Id} is duplicated in the imported file."
-                        });
-
+                        AddDuplicateFlightIdError(errors, i + 1, validFlight.Id);
                         continue;
                     }
 
@@ -71,6 +73,7 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
             _flightRepo.AddFlights(validFlights);
             return (true, errors);
         }
+
         public List<Booking> FilterBookings(
             int? flightId = null,
             decimal? maxPrice = null,
@@ -88,19 +91,21 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
             return allBookings.Where(b =>
             {
                 var flight = allFlights.FirstOrDefault(f => f.Id == b.FlightId);
-                if (flight == null) return false;
+                if (flight == null)
+                    return false;
 
-                    return (!flightId.HasValue || b.FlightId == flightId.Value) &&
-                       (!maxPrice.HasValue || b.PricePaid <= maxPrice.Value) &&
-                       (string.IsNullOrEmpty(passengerEmail) || b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase)) &&
-                       (!flightClass.HasValue || b.SelectedClass == flightClass.Value) &&
-                       (string.IsNullOrEmpty(departureCountry) || flight.DepartureCountry!.Equals(departureCountry, StringComparison.OrdinalIgnoreCase)) &&
-                       (string.IsNullOrEmpty(destinationCountry) || flight.DestinationCountry!.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase)) &&
-                       (string.IsNullOrEmpty(departureAirport) || flight.DepartureAirport!.Equals(departureAirport, StringComparison.OrdinalIgnoreCase)) &&
-                       (string.IsNullOrEmpty(arrivalAirport) || flight.ArrivalAirport!.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase)) &&
-                       (!departureDate.HasValue || flight.DepartureTime.Date == departureDate.Value.Date);
-                     }).ToList();
+                return (!flightId.HasValue || b.FlightId == flightId.Value) &&
+                    (!maxPrice.HasValue || b.PricePaid <= maxPrice.Value) &&
+                    (string.IsNullOrEmpty(passengerEmail) || b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase)) &&
+                    (!flightClass.HasValue || b.SelectedClass == flightClass.Value) &&
+                    (string.IsNullOrEmpty(departureCountry) || flight.DepartureCountry!.Equals(departureCountry, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(destinationCountry) || flight.DestinationCountry!.Equals(destinationCountry, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(departureAirport) || flight.DepartureAirport!.Equals(departureAirport, StringComparison.OrdinalIgnoreCase)) &&
+                    (string.IsNullOrEmpty(arrivalAirport) || flight.ArrivalAirport!.Equals(arrivalAirport, StringComparison.OrdinalIgnoreCase)) &&
+                    (!departureDate.HasValue || flight.DepartureTime.Date == departureDate.Value.Date);
+            }).ToList();
         }
+
         public List<FieldValidationInfo> GetFlightValidationDetails()
         {
             return typeof(Flight)
@@ -113,10 +118,12 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
                 })
                 .ToList();
         }
+
         public List<Flight> GetAllFlights()
         {
             return _flightRepo.GetAll();
         }
+
         public List<ValidationError> ValidateImportedFlightData(string filePath)
         {
             var errors = new List<ValidationError>();
@@ -149,16 +156,21 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
                 }
                 else if (result.ValidFlight != null && !importedFlightIds.Add(result.ValidFlight.Id))
                 {
-                    errors.Add(new ValidationError
-                    {
-                        RowNumber = i + 1,
-                        FieldName = "Id",
-                        ErrorMessage = $"Flight ID {result.ValidFlight.Id} is duplicated in the imported file."
-                    });
+                    AddDuplicateFlightIdError(errors, i + 1, result.ValidFlight.Id);
                 }
             }
 
             return errors;
+        }
+
+        private static void AddDuplicateFlightIdError(List<ValidationError> errors, int rowNumber, int flightId)
+        {
+            errors.Add(new ValidationError
+            {
+                RowNumber = rowNumber,
+                FieldName = "Id",
+                ErrorMessage = $"Flight ID {flightId} is duplicated in the imported file."
+            });
         }
 
         private static string GetReadableType(Type type)
