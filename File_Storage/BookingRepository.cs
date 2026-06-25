@@ -25,18 +25,23 @@ public class BookingRepository
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var columns = line.Split(',');
-            if (columns.Length == 7)
+            var columns = CsvUtility.ParseLine(line);
+
+            if (columns.Length == 7 &&
+                int.TryParse(columns[0], out var id) &&
+                int.TryParse(columns[1], out var flightId) &&
+                Enum.TryParse(columns[5], out FlightClass selectedClass) &&
+                decimal.TryParse(columns[6], NumberStyles.Number, CultureInfo.InvariantCulture, out var pricePaid))
             {
                 var booking = new Booking
                 {
-                    Id = int.Parse(columns[0]),
-                    FlightId = int.Parse(columns[1]),
+                    Id = id,
+                    FlightId = flightId,
                     PassengerEmail = columns[2],
                     PassengerName = columns[3],
                     PassengerPhone = columns[4],
-                    SelectedClass = Enum.Parse<FlightClass>(columns[5]),
-                    PricePaid = decimal.Parse(columns[6], CultureInfo.InvariantCulture)
+                    SelectedClass = selectedClass,
+                    PricePaid = pricePaid
                 };
                 bookings.Add(booking);
             }
@@ -85,7 +90,14 @@ public class BookingRepository
     public void SaveAllBookings(List<Booking> bookings)
     {
         var lines = new List<string> { "Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid" };
-        lines.AddRange(bookings.Select(b => $"{b.Id},{b.FlightId},{b.PassengerEmail},{b.PassengerName},{b.PassengerPhone},{b.SelectedClass},{b.PricePaid.ToString(CultureInfo.InvariantCulture)}"));
+        lines.AddRange(bookings.Select(b => CsvUtility.ToLine(
+            b.Id,
+            b.FlightId,
+            b.PassengerEmail,
+            b.PassengerName,
+            b.PassengerPhone,
+            b.SelectedClass,
+            b.PricePaid.ToString(CultureInfo.InvariantCulture))));
         File.WriteAllLines(FilePath, lines);
     }
 }

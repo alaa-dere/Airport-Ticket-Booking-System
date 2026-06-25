@@ -33,7 +33,7 @@ namespace TASK2.Services
                 return (false, errors, null);
             }
 
-            var columns = csvLine.Split(',');
+            var columns = CsvUtility.ParseLine(csvLine);
 
             if (columns.Length != 7)
             {

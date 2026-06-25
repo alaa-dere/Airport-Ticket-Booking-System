@@ -25,18 +25,22 @@ public class FlightRepository
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var columns = line.Split(',');
-            if (columns.Length == 7)
+            var columns = CsvUtility.ParseLine(line);
+
+            if (columns.Length == 7 &&
+                int.TryParse(columns[0], out var id) &&
+                DateTime.TryParseExact(columns[5], "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var departureTime) &&
+                decimal.TryParse(columns[6], NumberStyles.Number, CultureInfo.InvariantCulture, out var basePrice))
             {
                 var flight = new Flight
                 {
-                    Id = int.Parse(columns[0]),
+                    Id = id,
                     DepartureCountry = columns[1],
                     DestinationCountry = columns[2],
                     DepartureAirport = columns[3],
                     ArrivalAirport = columns[4],
-                    DepartureTime = DateTime.ParseExact(columns[5], "yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
-                    BasePrice = decimal.Parse(columns[6], CultureInfo.InvariantCulture)
+                    DepartureTime = departureTime,
+                    BasePrice = basePrice
                 };
                 flights.Add(flight);
             }
@@ -82,7 +86,14 @@ public class FlightRepository
     {
         var lines = new List<string> { "Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price" };
         
-        lines.AddRange(flights.Select(f => $"{f.Id},{f.DepartureCountry},{f.DestinationCountry},{f.DepartureAirport},{f.ArrivalAirport},{f.DepartureTime:yyyy-MM-dd HH:mm},{f.BasePrice.ToString(CultureInfo.InvariantCulture)}"));
+        lines.AddRange(flights.Select(f => CsvUtility.ToLine(
+            f.Id,
+            f.DepartureCountry,
+            f.DestinationCountry,
+            f.DepartureAirport,
+            f.ArrivalAirport,
+            f.DepartureTime.ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture),
+            f.BasePrice.ToString(CultureInfo.InvariantCulture))));
         
         File.WriteAllLines(FilePath, lines);
     }
