@@ -47,12 +47,7 @@ public class FlightRepository
     public void AddFlights(List<Flight> newFlights)
     {
         var flights = GetAll();
-        foreach (var flight in newFlights)
-        {
-            var maxId = flights.Count > 0 ? flights.Max(f => f.Id) : 0;
-            flight.Id = maxId + 1;
-            flights.Add(flight);
-        }
+        flights.AddRange(newFlights);
         SaveAll(flights);
     }
 

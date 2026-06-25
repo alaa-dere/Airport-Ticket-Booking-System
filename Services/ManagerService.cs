@@ -25,6 +25,7 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
         {
             var errors = new List<ValidationError>();
             var validFlights = new List<Flight>();
+            var importedFlightIds = new HashSet<int>();
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -46,6 +47,18 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
                 }
                 else if (validFlight != null)
                 {
+                    if (!importedFlightIds.Add(validFlight.Id))
+                    {
+                        errors.Add(new ValidationError
+                        {
+                            RowNumber = i + 1,
+                            FieldName = "Id",
+                            ErrorMessage = $"Flight ID {validFlight.Id} is duplicated in the imported file."
+                        });
+
+                        continue;
+                    }
+
                     validFlights.Add(validFlight);
                 }
             }
@@ -107,6 +120,7 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
         public List<ValidationError> ValidateImportedFlightData(string filePath)
         {
             var errors = new List<ValidationError>();
+            var importedFlightIds = new HashSet<int>();
 
             if (!System.IO.File.Exists(filePath))
             {
@@ -132,6 +146,15 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
                 if (!result.IsValid)
                 {
                     errors.AddRange(result.Errors);
+                }
+                else if (result.ValidFlight != null && !importedFlightIds.Add(result.ValidFlight.Id))
+                {
+                    errors.Add(new ValidationError
+                    {
+                        RowNumber = i + 1,
+                        FieldName = "Id",
+                        ErrorMessage = $"Flight ID {result.ValidFlight.Id} is duplicated in the imported file."
+                    });
                 }
             }
 
