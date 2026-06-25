@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
 using TASK2.File_Storage;
@@ -75,46 +76,6 @@ namespace TASK2.Services
                 });
             }
 
-            if (string.IsNullOrWhiteSpace(departureCountry))
-            {
-                errors.Add(new ValidationError
-                {
-                    RowNumber = rowNumber,
-                    FieldName = "DepartureCountry",
-                    ErrorMessage = "Departure Country is required."
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(destinationCountry))
-            {
-                errors.Add(new ValidationError
-                {
-                    RowNumber = rowNumber,
-                    FieldName = "DestinationCountry",
-                    ErrorMessage = "Destination Country is required."
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(departureAirport))
-            {
-                errors.Add(new ValidationError
-                {
-                    RowNumber = rowNumber,
-                    FieldName = "DepartureAirport",
-                    ErrorMessage = "Departure Airport is required."
-                });
-            }
-
-            if (string.IsNullOrWhiteSpace(arrivalAirport))
-            {
-                errors.Add(new ValidationError
-                {
-                    RowNumber = rowNumber,
-                    FieldName = "ArrivalAirport",
-                    ErrorMessage = "Arrival Airport is required."
-                });
-            }
-
             DateTime departureTime = DateTime.MinValue;
 
             if (!DateTime.TryParseExact(
@@ -129,15 +90,6 @@ namespace TASK2.Services
                     RowNumber = rowNumber,
                     FieldName = "DepartureTime",
                     ErrorMessage = "Departure Time must be in format yyyy-MM-dd HH:mm."
-                });
-            }
-            else if (departureTime.Date < DateTime.Today)
-            {
-                errors.Add(new ValidationError
-                {
-                    RowNumber = rowNumber,
-                    FieldName = "DepartureTime",
-                    ErrorMessage = "Departure Time cannot be in the past. Must be today or future."
                 });
             }
 
@@ -157,23 +109,55 @@ namespace TASK2.Services
                 });
             }
 
+            var flight = new Flight
+            {
+                Id = id,
+                DepartureCountry = string.IsNullOrWhiteSpace(departureCountry) ? null : departureCountry,
+                DestinationCountry = string.IsNullOrWhiteSpace(destinationCountry) ? null : destinationCountry,
+                DepartureAirport = string.IsNullOrWhiteSpace(departureAirport) ? null : departureAirport,
+                ArrivalAirport = string.IsNullOrWhiteSpace(arrivalAirport) ? null : arrivalAirport,
+                DepartureTime = departureTime,
+                BasePrice = basePrice
+            };
+
+            AddModelValidationErrors(flight, rowNumber, errors);
+
             if (errors.Count > 0)
             {
                 return (false, errors, null);
             }
 
-            var flight = new Flight
-            {
-                Id = id,
-                DepartureCountry = departureCountry,
-                DestinationCountry = destinationCountry,
-                DepartureAirport = departureAirport,
-                ArrivalAirport = arrivalAirport,
-                DepartureTime = departureTime,
-                BasePrice = basePrice
-            };
-
             return (true, errors, flight);
+        }
+
+        private static void AddModelValidationErrors(Flight flight, int rowNumber, List<ValidationError> errors)
+        {
+            var validationResults = new List<ValidationResult>();
+            var validationContext = new ValidationContext(flight);
+
+            Validator.TryValidateObject(flight, validationContext, validationResults, true);
+
+            foreach (var result in validationResults)
+            {
+                var fieldNames = result.MemberNames.Any()
+                    ? result.MemberNames
+                    : new[] { "Flight" };
+
+                foreach (var fieldName in fieldNames)
+                {
+                    if (errors.Any(e => e.FieldName == fieldName && e.ErrorMessage == result.ErrorMessage))
+                    {
+                        continue;
+                    }
+
+                    errors.Add(new ValidationError
+                    {
+                        RowNumber = rowNumber,
+                        FieldName = fieldName,
+                        ErrorMessage = result.ErrorMessage ?? "Invalid value."
+                    });
+                }
+            }
         }
     }
 }

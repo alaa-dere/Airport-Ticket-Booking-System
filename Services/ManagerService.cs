@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using TASK2.File_Storage;
 using TASK2.Models;
+using TASK2.Validation;
 
 namespace TASK2.Services
 {
@@ -87,17 +90,103 @@ public (bool IsSuccess, List<ValidationError> Errors) BatchUploadFlights(string 
         }
         public List<FieldValidationInfo> GetFlightValidationDetails()
         {
-            return new List<FieldValidationInfo>
+            return typeof(Flight)
+                .GetProperties()
+                .Select(property => new FieldValidationInfo
+                {
+                    FieldName = property.Name,
+                    Type = GetReadableType(property.PropertyType),
+                    Constraints = GetReadableConstraints(property)
+                })
+                .ToList();
+        }
+        public List<Flight> GetAllFlights()
+        {
+            return _flightRepo.GetAll();
+        }
+        public List<ValidationError> ValidateImportedFlightData(string filePath)
+        {
+            var errors = new List<ValidationError>();
+
+            if (!System.IO.File.Exists(filePath))
             {
-                new FieldValidationInfo { FieldName = "Id", Type = "Integer", Constraints = "Required, Unique, Must be a positive number" },
-                new FieldValidationInfo { FieldName = "DepartureCountry", Type = "Free Text", Constraints = "Required" },
-                new FieldValidationInfo { FieldName = "DestinationCountry", Type = "Free Text", Constraints = "Required" },
-                new FieldValidationInfo { FieldName = "DepartureTime", Type = "Date Time (YYYY-MM-DD)", Constraints = "Required, Allowed Range (Today -> Future)" },
-                new FieldValidationInfo { FieldName = "DepartureAirport", Type = "Free Text", Constraints = "Required" },
-                new FieldValidationInfo { FieldName = "ArrivalAirport", Type = "Free Text", Constraints = "Required" },
-                new FieldValidationInfo { FieldName = "BasePrice", Type = "Decimal", Constraints = "Required, Must be a positive number >= 0" }
-            };
+                errors.Add(new ValidationError
+                {
+                    RowNumber = 0,
+                    FieldName = "File",
+                    ErrorMessage = "The specified file does not exist."
+                });
+
+                return errors;
+            }
+
+            var lines = System.IO.File.ReadAllLines(filePath);
+
+            for (int i = 1; i < lines.Length; i++)
+            {
+                if (string.IsNullOrWhiteSpace(lines[i]))
+                    continue;
+
+                var result = _validationService.ValidateFlightRow(lines[i], i + 1);
+
+                if (!result.IsValid)
+                {
+                    errors.AddRange(result.Errors);
+                }
+            }
+
+            return errors;
         }
 
+        private static string GetReadableType(Type type)
+        {
+            var actualType = Nullable.GetUnderlyingType(type) ?? type;
+
+            if (actualType == typeof(string))
+                return "Free Text";
+
+            if (actualType == typeof(DateTime))
+                return "Date Time";
+
+            if (actualType == typeof(decimal))
+                return "Decimal";
+
+            if (actualType == typeof(int))
+                return "Integer";
+
+            return actualType.Name;
+        }
+
+        private static string GetReadableConstraints(PropertyInfo property)
+        {
+            var constraints = new List<string>();
+            var attributes = property.GetCustomAttributes<ValidationAttribute>().ToList();
+
+            if (attributes.OfType<RequiredAttribute>().Any())
+                constraints.Add("Required");
+
+            foreach (var rangeAttribute in attributes.OfType<RangeAttribute>())
+            {
+                constraints.Add($"Allowed Range ({FormatRangeValue(rangeAttribute.Minimum)} -> {FormatRangeValue(rangeAttribute.Maximum)})");
+            }
+
+            if (attributes.OfType<FutureOrTodayAttribute>().Any())
+                constraints.Add("Allowed Range (Today -> Future)");
+
+            if (property.Name == nameof(Flight.Id))
+                constraints.Add("Unique");
+
+            return constraints.Count == 0 ? "None" : string.Join(", ", constraints);
+        }
+
+        private static string FormatRangeValue(object value)
+        {
+            return value switch
+            {
+                int intValue when intValue == int.MaxValue => "Max",
+                decimal decimalValue when decimalValue == decimal.MaxValue => "Max",
+                _ => value.ToString() ?? string.Empty
+            };
+        }
     }
 }

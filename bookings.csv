@@ -5,3 +5,5 @@ Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid
 4,1,alaa@najah.edu,Alaa,+9705990000,Business,225.0
 5,1,sara@gmail.com,Sara Ahmed,0599123456,Business,225.0
 6,1,manager.test@najah.edu,Sami,123456,FirstClass,375.0
+7,1,alaa@gmail.com,alaa,0597889750,Economy,150
+8,2,alaa@gmail.com,alaa,0597889750,Business,450.0
