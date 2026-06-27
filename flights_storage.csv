@@ -19,3 +19,4 @@ Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,Departure
 18,Jordan,Greece,AMM,ATH,2026-08-14 11:45,260
 19,Palestine,Malaysia,GZA,KUL,2026-11-05 16:25,990
 20,Egypt,Switzerland,CAI,ZRH,2026-10-27 05:55,710
+21,Germany,Egypt,BER,CAI,2026-09-27 05:30,600

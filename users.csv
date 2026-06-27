@@ -1,2 +1,6 @@
 Id,Name,Email,Password,Role
-1,System Manager,admin@airport.com,admin123,Manager
+1,System Manager,admin@gmail.com,admin123,Manager
+2,alaa,alaa@gmail.com,123456,Passenger
+3,Sara,sara@gmail.com,123456,Passenger
+4,Ali,ali@gmail.com,123456,Passenger
+5,Mona,mona@gmailcom,123456,Passenger

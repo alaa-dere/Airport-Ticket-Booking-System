@@ -47,6 +47,15 @@ namespace TASK2.Services
                 return false;
             }
 
+            var alreadyBooked = _bookingRepo.GetAll().Any(b =>
+                b.FlightId == flightId &&
+                b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (alreadyBooked)
+            {
+                return false;
+            }
+
             decimal finalPrice = flight.GetPriceForClass(selectedClass);
 
             var newBooking = new Booking

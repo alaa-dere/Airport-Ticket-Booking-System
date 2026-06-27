@@ -175,7 +175,7 @@ namespace TASK2.Presentation
 
             Console.WriteLine(success
                 ? "\nBooking completed successfully!"
-                : "\nBooking failed. Flight not found.");
+                : "\nBooking failed. Flight not found or already booked.");
 
             Console.WriteLine("\nPress Enter to return.");
             Console.ReadLine();
