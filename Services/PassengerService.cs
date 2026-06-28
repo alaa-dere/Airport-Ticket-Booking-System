@@ -94,6 +94,14 @@ namespace TASK2.Services
             if (flight == null)
                 return false;
 
+            var alreadyBooked = _bookingRepo.GetAll().Any(b =>
+                b.Id != bookingId &&
+                b.FlightId == newFlightId &&
+                b.PassengerEmail!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+
+            if (alreadyBooked)
+                return false;
+
             booking.FlightId = newFlightId;
             booking.SelectedClass = newClass;
             booking.PricePaid = flight.GetPriceForClass(newClass);

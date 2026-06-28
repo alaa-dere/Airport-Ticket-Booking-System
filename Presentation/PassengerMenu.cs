@@ -261,7 +261,7 @@ namespace TASK2.Presentation
 
             Console.WriteLine(success
                 ? "\nBooking modified successfully!"
-                : "\nModification failed. Check Booking ID or Flight ID.");
+                : "\nModification failed. Check Booking ID, Flight ID, or duplicate booking.");
 
             Console.WriteLine("\nPress Enter to return.");
             Console.ReadLine();
