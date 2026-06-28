@@ -144,6 +144,13 @@ namespace TASK2.Presentation
                 return;
             }
 
+            if (!flights.Any(f => f.Id == flightId))
+            {
+                Console.WriteLine("Selected Flight ID is not in the search results.");
+                Console.ReadLine();
+                return;
+            }
+
             Console.Write("Enter Passenger Name: ");
             string name = Console.ReadLine() ?? "Unknown";
 
@@ -233,6 +240,13 @@ namespace TASK2.Presentation
             if (!int.TryParse(Console.ReadLine(), out int newFlightId))
             {
                 Console.WriteLine("Invalid Flight ID.");
+                Console.ReadLine();
+                return;
+            }
+
+            if (!flights.Any(f => f.Id == newFlightId))
+            {
+                Console.WriteLine("Selected Flight ID is not in the search results.");
                 Console.ReadLine();
                 return;
             }
