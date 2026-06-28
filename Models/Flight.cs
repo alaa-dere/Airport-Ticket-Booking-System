@@ -26,7 +26,8 @@ public class Flight
     public DateTime DepartureTime { get; set; }
 
     [Required]
-[Range(typeof(decimal), "100", "79228162514264337593543950335", ErrorMessage = "Base Price must be at least 100.")]    public decimal BasePrice { get; set; } 
+    [Range(typeof(decimal), "0.01", "79228162514264337593543950335", ErrorMessage = "Base Price must be a valid positive number.")]
+    public decimal BasePrice { get; set; } 
 
     public decimal GetPriceForClass(FlightClass flightClass)
     {

@@ -17,7 +17,10 @@ namespace TASK2.Services
             _flightRepo = new FlightRepository();
         }
 
-        public (bool IsValid, List<ValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(string csvLine, int rowNumber)
+        public (bool IsValid, List<ValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(
+            string csvLine,
+            int rowNumber,
+            List<Flight>? existingFlights = null)
         {
             var errors = new List<ValidationError>();
 
@@ -66,7 +69,7 @@ namespace TASK2.Services
                     ErrorMessage = "Flight ID must be a valid positive integer."
                 });
             }
-            else if (_flightRepo.GetAll().Any(f => f.Id == id))
+            else if ((existingFlights ?? _flightRepo.GetAll()).Any(f => f.Id == id))
             {
                 errors.Add(new ValidationError
                 {

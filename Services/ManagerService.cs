@@ -41,13 +41,14 @@ namespace TASK2.Services
             }
 
             var lines = System.IO.File.ReadAllLines(filePath);
+            var existingFlights = _flightRepo.GetAll();
 
             for (int i = 1; i < lines.Length; i++)
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                var (isValid, rowErrors, validFlight) = _validationService.ValidateFlightRow(lines[i], i + 1);
+                var (isValid, rowErrors, validFlight) = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
 
                 if (!isValid)
                 {
@@ -142,13 +143,14 @@ namespace TASK2.Services
             }
 
             var lines = System.IO.File.ReadAllLines(filePath);
+            var existingFlights = _flightRepo.GetAll();
 
             for (int i = 1; i < lines.Length; i++)
             {
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                var result = _validationService.ValidateFlightRow(lines[i], i + 1);
+                var result = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
 
                 if (!result.IsValid)
                 {
