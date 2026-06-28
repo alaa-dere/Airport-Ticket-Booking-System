@@ -4,7 +4,7 @@ namespace TASK2.File_Storage;
 
 public class UserRepository
 {
-    private const string FilePath = "users.csv";
+    private static readonly string FilePath = StoragePath.Resolve("users.csv");
 
     public List<User> GetAll()
     {

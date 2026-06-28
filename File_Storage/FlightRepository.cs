@@ -9,7 +9,7 @@ namespace TASK2.File_Storage;
 
 public class FlightRepository
 {
-    private const string FilePath = "flights_storage.csv";
+    private static readonly string FilePath = StoragePath.Resolve("flights_storage.csv");
 
     public List<Flight> GetAll()
     {

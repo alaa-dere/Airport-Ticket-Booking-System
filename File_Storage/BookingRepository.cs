@@ -9,7 +9,7 @@ namespace TASK2.File_Storage;
 
 public class BookingRepository
 {
-    private const string FilePath = "bookings.csv";
+    private static readonly string FilePath = StoragePath.Resolve("bookings.csv");
 
     public List<Booking> GetAll()
     {
