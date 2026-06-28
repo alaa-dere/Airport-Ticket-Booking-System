@@ -1,4 +1,5 @@
 using System;
+using TASK2.File_Storage;
 using TASK2.Models;
 using TASK2.Services;
 
@@ -111,6 +112,15 @@ namespace TASK2.Presentation
                 string.IsNullOrWhiteSpace(password))
             {
                 Console.WriteLine("Name, email, and password are required.");
+                Console.ReadLine();
+                return;
+            }
+
+            if (!CsvUtility.IsValidSimpleValue(name) ||
+                !CsvUtility.IsValidSimpleValue(email) ||
+                !CsvUtility.IsValidSimpleValue(password))
+            {
+                Console.WriteLine("Name, email, and password cannot contain commas.");
                 Console.ReadLine();
                 return;
             }

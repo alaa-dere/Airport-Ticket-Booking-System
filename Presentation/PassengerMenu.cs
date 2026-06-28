@@ -1,4 +1,5 @@
 using System;
+using TASK2.File_Storage;
 using TASK2.Services;
 using TASK2.Models;
 
@@ -151,11 +152,8 @@ namespace TASK2.Presentation
                 return;
             }
 
-            Console.Write("Enter Passenger Name: ");
-            string name = Console.ReadLine() ?? "Unknown";
-
-            Console.Write("Enter Passenger Phone: ");
-            string phone = Console.ReadLine() ?? "000";
+            string name = ReadRequiredSimpleText("Enter Passenger Name: ");
+            string phone = ReadRequiredSimpleText("Enter Passenger Phone: ");
 
             Console.WriteLine("\nSelect Class:");
             Console.WriteLine("1. Economy");
@@ -353,6 +351,31 @@ namespace TASK2.Presentation
         {
             string? input = Console.ReadLine();
             return string.IsNullOrWhiteSpace(input) ? null : input.Trim();
+        }
+
+        private string ReadRequiredSimpleText(string message)
+        {
+            while (true)
+            {
+                Console.Write(message);
+                string? input = Console.ReadLine();
+
+                if (string.IsNullOrWhiteSpace(input))
+                {
+                    Console.WriteLine("This field is required.");
+                    continue;
+                }
+
+                input = input.Trim();
+
+                if (!CsvUtility.IsValidSimpleValue(input))
+                {
+                    Console.WriteLine("This field cannot contain commas.");
+                    continue;
+                }
+
+                return input;
+            }
         }
 
         private decimal? ReadOptionalDecimal()

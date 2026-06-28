@@ -22,6 +22,16 @@ namespace TASK2.Services
 
         public bool RegisterPassenger(string name, string email, string password)
         {
+            if (string.IsNullOrWhiteSpace(name) ||
+                string.IsNullOrWhiteSpace(email) ||
+                string.IsNullOrWhiteSpace(password) ||
+                !CsvUtility.IsValidSimpleValue(name) ||
+                !CsvUtility.IsValidSimpleValue(email) ||
+                !CsvUtility.IsValidSimpleValue(password))
+            {
+                return false;
+            }
+
             var users = _userRepository.GetAll();
 
             if (users.Any(user => user.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))

@@ -40,6 +40,16 @@ namespace TASK2.Services
 
         public bool BookFlight(int flightId, string passengerEmail, string passengerName, string passengerPhone, FlightClass selectedClass)
         {
+            if (string.IsNullOrWhiteSpace(passengerEmail) ||
+                string.IsNullOrWhiteSpace(passengerName) ||
+                string.IsNullOrWhiteSpace(passengerPhone) ||
+                !CsvUtility.IsValidSimpleValue(passengerEmail) ||
+                !CsvUtility.IsValidSimpleValue(passengerName) ||
+                !CsvUtility.IsValidSimpleValue(passengerPhone))
+            {
+                return false;
+            }
+
             var flight = _flightRepo.GetAll().FirstOrDefault(f => f.Id == flightId);
             
             if (flight == null)
