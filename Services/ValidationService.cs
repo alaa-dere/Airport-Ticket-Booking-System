@@ -11,6 +11,7 @@ namespace TASK2.Services
     public class ValidationService
     {
         private readonly FlightRepository _flightRepo;
+        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public ValidationService()
         {
@@ -36,7 +37,7 @@ namespace TASK2.Services
                 return (false, errors, null);
             }
 
-            var columns = CsvUtility.ParseLine(csvLine);
+            var columns = Parser.ParseLine(csvLine);
 
             if (columns.Length != 7)
             {

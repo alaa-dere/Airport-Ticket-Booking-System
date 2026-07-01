@@ -7,6 +7,7 @@ namespace TASK2.Presentation
 {
     public class PassengerMenu
     {
+        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
         private readonly PassengerService _passengerService;
 
         public PassengerMenu()
@@ -368,7 +369,7 @@ namespace TASK2.Presentation
 
                 input = input.Trim();
 
-                if (!CsvUtility.IsValidSimpleValue(input))
+                if (!Parser.IsValidSimpleValue(input))
                 {
                     Console.WriteLine("This field cannot contain commas.");
                     continue;

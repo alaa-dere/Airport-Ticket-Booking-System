@@ -8,10 +8,11 @@ namespace TASK2.Presentation
     public class MainMenu
     {
         private readonly AuthService _authService;
+        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
-        public MainMenu()
+        public MainMenu(AuthService authService)
         {
-            _authService = new AuthService();
+            _authService = authService;
         }
 
         public void Display()
@@ -116,9 +117,9 @@ namespace TASK2.Presentation
                 return;
             }
 
-            if (!CsvUtility.IsValidSimpleValue(name) ||
-                !CsvUtility.IsValidSimpleValue(email) ||
-                !CsvUtility.IsValidSimpleValue(password))
+            if (!Parser.IsValidSimpleValue(name) ||
+                !Parser.IsValidSimpleValue(email) ||
+                !Parser.IsValidSimpleValue(password))
             {
                 Console.WriteLine("Name, email, and password cannot contain commas.");
                 Console.ReadLine();

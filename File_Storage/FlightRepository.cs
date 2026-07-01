@@ -9,7 +9,8 @@ namespace TASK2.File_Storage;
 
 public class FlightRepository
 {
-    private static readonly string FilePath = StoragePath.Resolve("flights_storage.csv");
+    private static readonly string FilePath = StoragePath.Resolve(AppConstants.FlightsFileName);
+    private static readonly IParser Parser = ParserFactory.GetParser(Path.GetExtension(FilePath).TrimStart('.'));
 
     public List<Flight> GetAll()
     {
@@ -25,7 +26,7 @@ public class FlightRepository
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var columns = CsvUtility.ParseLine(line);
+            var columns = Parser.ParseLine(line);
 
             if (columns.Length == 7 &&
                 int.TryParse(columns[0], out var id) &&
@@ -48,14 +49,14 @@ public class FlightRepository
         return flights;
     }
 
-    public void AddFlights(List<Flight> newFlights)
+    public void Add(List<Flight> newFlights)
     {
         var flights = GetAll();
         flights.AddRange(newFlights);
         SaveAll(flights);
     }
 
-    public void UpdateFlight(Flight updatedFlight)
+    public void Update(Flight updatedFlight)
     {
         var flights = GetAll();
         var existingFlight = flights.FirstOrDefault(f => f.Id == updatedFlight.Id);
@@ -71,7 +72,7 @@ public class FlightRepository
         }
     }
 
-    public void DeleteFlight(int id)
+    public void Delete(int id)
     {
         var flights = GetAll();
         var flightToDelete = flights.FirstOrDefault(f => f.Id == id);
@@ -86,7 +87,7 @@ public class FlightRepository
     {
         var lines = new List<string> { "Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price" };
         
-        lines.AddRange(flights.Select(f => CsvUtility.ToLine(
+        lines.AddRange(flights.Select(f => Parser.ToLine(
             f.Id,
             f.DepartureCountry,
             f.DestinationCountry,

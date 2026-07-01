@@ -1,13 +1,12 @@
 namespace TASK2.File_Storage;
-
-public static class CsvUtility
+public class CsvParser : IParser
 {
-    public static string[] ParseLine(string line)
+    public string[] ParseLine(string line)
     {
         return line.Split(',');
     }
 
-    public static string ToLine(params object?[] values)
+    public string ToLine(params object?[] values)
     {
         return string.Join(",", values.Select(value =>
         {
@@ -21,8 +20,7 @@ public static class CsvUtility
             return text;
         }));
     }
-
-    public static bool IsValidSimpleValue(string value)
+    public bool IsValidSimpleValue(string value)
     {
         return !value.Contains(',') &&
             !value.Contains('\n') &&

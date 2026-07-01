@@ -9,8 +9,8 @@ namespace TASK2.File_Storage;
 
 public class BookingRepository
 {
-    private static readonly string FilePath = StoragePath.Resolve("bookings.csv");
-
+    private static readonly string FilePath = StoragePath.Resolve(AppConstants.BookingsFileName);
+    private static readonly IParser Parser = ParserFactory.GetParser(Path.GetExtension(FilePath).TrimStart('.'));
     public List<Booking> GetAll()
     {
         var bookings = new List<Booking>();
@@ -25,7 +25,7 @@ public class BookingRepository
         {
             if (string.IsNullOrWhiteSpace(line)) continue;
 
-            var columns = CsvUtility.ParseLine(line);
+            var columns = Parser.ParseLine(line);
 
             if (columns.Length == 7 &&
                 int.TryParse(columns[0], out var id) &&
@@ -49,17 +49,17 @@ public class BookingRepository
         return bookings;
     }
 
-    public void AddBooking(Booking booking)
+    public void Add(Booking booking)
     {
         var bookings = GetAll();
         var maxId = bookings.Count > 0 ? bookings.Max(b => b.Id) : 0;
         booking.Id = maxId + 1;
         
         bookings.Add(booking);
-        SaveAllBookings(bookings);
+        SaveAll(bookings);
     }
 
-    public void UpdateBooking(Booking updatedBooking)
+    public void Update(Booking updatedBooking)
     {
         var bookings = GetAll();
         var existingBooking = bookings.FirstOrDefault(b => b.Id == updatedBooking.Id);
@@ -72,25 +72,25 @@ public class BookingRepository
             existingBooking.SelectedClass = updatedBooking.SelectedClass;
             existingBooking.PricePaid = updatedBooking.PricePaid; 
             
-            SaveAllBookings(bookings);
+            SaveAll(bookings);
         }
     }
 
-    public void DeleteBooking(int id)
+    public void Delete(int id)
     {
         var bookings = GetAll();
         var bookingToDelete = bookings.FirstOrDefault(b => b.Id == id);
         if (bookingToDelete != null)
         {
             bookings.Remove(bookingToDelete);
-            SaveAllBookings(bookings);
+            SaveAll(bookings);
         }
     }
 
-    public void SaveAllBookings(List<Booking> bookings)
+    public void SaveAll(List<Booking> bookings)
     {
         var lines = new List<string> { "Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid" };
-        lines.AddRange(bookings.Select(b => CsvUtility.ToLine(
+        lines.AddRange(bookings.Select(b => Parser.ToLine(
             b.Id,
             b.FlightId,
             b.PassengerEmail,

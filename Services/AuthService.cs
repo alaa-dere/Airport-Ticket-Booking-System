@@ -6,6 +6,7 @@ namespace TASK2.Services
     public class AuthService
     {
         private readonly UserRepository _userRepository;
+        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public AuthService()
         {
@@ -25,9 +26,9 @@ namespace TASK2.Services
             if (string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(email) ||
                 string.IsNullOrWhiteSpace(password) ||
-                !CsvUtility.IsValidSimpleValue(name) ||
-                !CsvUtility.IsValidSimpleValue(email) ||
-                !CsvUtility.IsValidSimpleValue(password))
+                !Parser.IsValidSimpleValue(name) ||
+                !Parser.IsValidSimpleValue(email) ||
+                !Parser.IsValidSimpleValue(password))
             {
                 return false;
             }
@@ -37,7 +38,7 @@ namespace TASK2.Services
             if (users.Any(user => user.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
                 return false;
 
-            _userRepository.AddUser(new User
+            _userRepository.Add(new User
             {
                 Name = name,
                 Email = email,

@@ -4,7 +4,8 @@ namespace TASK2.File_Storage;
 
 public class UserRepository
 {
-    private static readonly string FilePath = StoragePath.Resolve("users.csv");
+    private static readonly string FilePath = StoragePath.Resolve(AppConstants.UsersFileName);
+    private static readonly IParser Parser = ParserFactory.GetParser(Path.GetExtension(FilePath).TrimStart('.'));
 
     public List<User> GetAll()
     {
@@ -18,7 +19,7 @@ public class UserRepository
             if (string.IsNullOrWhiteSpace(line))
                 continue;
 
-            var columns = CsvUtility.ParseLine(line);
+            var columns = Parser.ParseLine(line);
 
             if (columns.Length == 5 &&
                 int.TryParse(columns[0], out var id) &&
@@ -38,7 +39,7 @@ public class UserRepository
         return users;
     }
 
-    public void AddUser(User user)
+    public void Add(User user)
     {
         var users = GetAll();
         var maxId = users.Count > 0 ? users.Max(u => u.Id) : 0;
@@ -52,7 +53,7 @@ public class UserRepository
     {
         var lines = new List<string> { "Id,Name,Email,Password,Role" };
 
-        lines.AddRange(users.Select(user => CsvUtility.ToLine(
+        lines.AddRange(users.Select(user => Parser.ToLine(
             user.Id,
             user.Name,
             user.Email,

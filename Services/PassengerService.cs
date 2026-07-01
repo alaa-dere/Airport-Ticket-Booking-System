@@ -10,6 +10,7 @@ namespace TASK2.Services
     {
         private readonly FlightRepository _flightRepo;
         private readonly BookingRepository _bookingRepo;
+        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public PassengerService()
         {
@@ -43,9 +44,9 @@ namespace TASK2.Services
             if (string.IsNullOrWhiteSpace(passengerEmail) ||
                 string.IsNullOrWhiteSpace(passengerName) ||
                 string.IsNullOrWhiteSpace(passengerPhone) ||
-                !CsvUtility.IsValidSimpleValue(passengerEmail) ||
-                !CsvUtility.IsValidSimpleValue(passengerName) ||
-                !CsvUtility.IsValidSimpleValue(passengerPhone))
+                !Parser.IsValidSimpleValue(passengerEmail) ||
+                !Parser.IsValidSimpleValue(passengerName) ||
+                !Parser.IsValidSimpleValue(passengerPhone))
             {
                 return false;
             }
@@ -78,7 +79,7 @@ namespace TASK2.Services
                 PricePaid = finalPrice
             };
 
-            _bookingRepo.AddBooking(newBooking);
+            _bookingRepo.Add(newBooking);
             return true;
         }
         public bool CancelBooking(int bookingId, string passengerEmail)
@@ -88,7 +89,7 @@ namespace TASK2.Services
             if (booking == null)
                 return false;
 
-            _bookingRepo.DeleteBooking(bookingId);
+            _bookingRepo.Delete(bookingId);
             return true;
         }
        
@@ -116,7 +117,7 @@ namespace TASK2.Services
             booking.SelectedClass = newClass;
             booking.PricePaid = flight.GetPriceForClass(newClass);
             
-            _bookingRepo.UpdateBooking(booking);
+            _bookingRepo.Update(booking);
             return true;
         }
 

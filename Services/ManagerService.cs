@@ -71,7 +71,7 @@ namespace TASK2.Services
                 return (false, errors);
             }
 
-            _flightRepo.AddFlights(validFlights);
+            _flightRepo.Add(validFlights);
             return (true, errors);
         }
 
