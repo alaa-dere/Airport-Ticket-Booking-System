@@ -1,0 +1,22 @@
+Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price
+1,Jordan,Egypt,AMM,CAI,2026-08-01 14:00,150
+2,Palestine,UAE,GZA,DXB,2026-09-15 09:30,300
+3,Jordan,UK,AMM,LHR,2026-10-20 21:15,500
+4,Jordan,Saudi Arabia,AMM,JED,2026-07-10 08:00,180
+5,Palestine,Turkey,GZA,IST,2026-08-18 13:30,250
+6,Egypt,Germany,CAI,FRA,2026-09-05 06:45,620
+7,UAE,France,DXB,CDG,2026-11-12 15:20,780
+8,Turkey,Italy,IST,FCO,2026-10-08 10:10,320
+9,Qatar,Japan,DOH,NRT,2026-12-01 23:45,950
+10,Saudi Arabia,USA,RUH,JFK,2026-09-22 04:30,1200
+11,Jordan,Canada,AMM,YYZ,2026-10-15 17:15,980
+12,Palestine,Germany,GZA,BER,2026-08-25 09:50,540
+13,Egypt,Spain,CAI,MAD,2026-09-30 12:00,470
+14,UAE,Australia,DXB,SYD,2026-11-20 20:30,1350
+15,Turkey,Netherlands,IST,AMS,2026-10-03 07:15,430
+16,Qatar,India,DOH,DEL,2026-07-28 18:40,290
+17,Saudi Arabia,Singapore,JED,SIN,2026-12-10 22:00,880
+18,Jordan,Greece,AMM,ATH,2026-08-14 11:45,260
+19,Palestine,Malaysia,GZA,KUL,2026-11-05 16:25,990
+20,Egypt,Switzerland,CAI,ZRH,2026-10-27 05:55,710
+21,Germany,Egypt,BER,CAI,2026-09-27 05:30,600
