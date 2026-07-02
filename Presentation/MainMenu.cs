@@ -2,24 +2,30 @@ using System;
 using TASK2.File_Storage.Parser;
 using TASK2.Models;
 using TASK2.Services.Auth;
+using TASK2.Services.Manager;
+using TASK2.Services.Passengers;
+using TASK2.Presentation.Readers;
 
 namespace TASK2.Presentation
 {
     public class MainMenu 
     {
         private readonly IAuthService _authService;
-        private readonly ManagerMenu _managerMenu;
-        private readonly PassengerMenu _passengerMenu;
+        private readonly IManagerService _managerService;
+        private readonly IPassengerService _passengerService;
+        private readonly IConsoleReader _consoleReader;
         private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public MainMenu(
             IAuthService authService,
-            ManagerMenu managerMenu,
-            PassengerMenu passengerMenu)
+            IManagerService managerService,
+            IPassengerService passengerService,
+            IConsoleReader consoleReader)
         {
             _authService = authService;
-            _managerMenu = managerMenu;
-            _passengerMenu = passengerMenu;
+            _managerService = managerService;
+            _passengerService = passengerService;
+            _consoleReader = consoleReader;
         }
 
         public void Display()
@@ -46,17 +52,18 @@ namespace TASK2.Presentation
 
                         if (user == null)
                             break;
-
+                            
                         if (user.Role == UserRole.Manager)
-                        {
-                            _managerMenu.Display();
-                        }
+                            {
+                                var managerMenu = new ManagerMenu(_managerService, _consoleReader);
+                                managerMenu.Display();
+                            }
                         else
-                        {
-                            _passengerMenu.Display(user.Email);
-                        }   
-
-                        break;
+                            {
+                                var passengerMenu = new PassengerMenu(_passengerService);
+                                passengerMenu.Display(user.Email);
+                            }    
+                            break;
 
                     case "2":
                         HandlePassengerRegistration();

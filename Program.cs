@@ -17,9 +17,9 @@ class Program
     {
         IConsoleReader consoleReader = new ConsoleReader();
         IUserRepository userRepository = new UserRepository();
-        IFlightRepository flightRepository = new FlightRepository();
-        IBookingRepository bookingRepository = new BookingRepository(flightRepository);
-
+        FlightRepository flightBookingRepository = new FlightRepository();
+        IFlightRepository flightRepository = flightBookingRepository;
+        IBookingRepository bookingRepository = flightBookingRepository;
         IAuthService authService = new AuthService(userRepository);
         IValidationService validationService = new ValidationService(flightRepository);
         IFlightService flightService = new FlightService(flightRepository);
@@ -29,7 +29,7 @@ class Program
 
         ManagerMenu managerMenu = new ManagerMenu(managerService, consoleReader);
         PassengerMenu passengerMenu = new PassengerMenu(passengerService);
-        MainMenu mainMenu = new MainMenu(authService, managerMenu, passengerMenu);
+        MainMenu mainMenu = new MainMenu(authService, managerService, passengerService, consoleReader);
         mainMenu.Display();
     }
 }
