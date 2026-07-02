@@ -1,18 +1,25 @@
 using System;
-using TASK2.File_Storage;
+using TASK2.File_Storage.Parser;
 using TASK2.Models;
-using TASK2.Services;
+using TASK2.Services.Auth;
 
 namespace TASK2.Presentation
 {
-    public class MainMenu
+    public class MainMenu 
     {
-        private readonly AuthService _authService;
+        private readonly IAuthService _authService;
+        private readonly ManagerMenu _managerMenu;
+        private readonly PassengerMenu _passengerMenu;
         private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
-        public MainMenu(AuthService authService)
+        public MainMenu(
+            IAuthService authService,
+            ManagerMenu managerMenu,
+            PassengerMenu passengerMenu)
         {
             _authService = authService;
+            _managerMenu = managerMenu;
+            _passengerMenu = passengerMenu;
         }
 
         public void Display()
@@ -35,7 +42,20 @@ namespace TASK2.Presentation
                 switch (choice)
                 {
                     case "1":
-                        HandleLogin();
+                        var user = Login();
+
+                        if (user == null)
+                            break;
+
+                        if (user.Role == UserRole.Manager)
+                        {
+                            _managerMenu.Display();
+                        }
+                        else
+                        {
+                            _passengerMenu.Display(user.Email);
+                        }   
+
                         break;
 
                     case "2":
@@ -55,7 +75,7 @@ namespace TASK2.Presentation
             }
         }
 
-        private void HandleLogin()
+        private User? Login()
         {
             Console.Clear();
             Console.WriteLine("=== Login ===");
@@ -70,7 +90,7 @@ namespace TASK2.Presentation
             {
                 Console.WriteLine("Email and password are required.");
                 Console.ReadLine();
-                return;
+                return null;
             }
 
             var user = _authService.Login(email.Trim(), password);
@@ -79,19 +99,10 @@ namespace TASK2.Presentation
             {
                 Console.WriteLine("Invalid email or password.");
                 Console.ReadLine();
-                return;
+                return null;
             }
 
-            if (user.Role == UserRole.Manager)
-            {
-                var managerMenu = new ManagerMenu();
-                managerMenu.Display();
-            }
-            else
-            {
-                var passengerMenu = new PassengerMenu();
-                passengerMenu.Display(user.Email);
-            }
+            return user;
         }
 
         private void HandlePassengerRegistration()

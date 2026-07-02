@@ -1,17 +1,20 @@
 using System;
-using TASK2.Services;
+using TASK2.Services.Manager;
 using TASK2.Models;
-
+using TASK2.Presentation.Readers;
 namespace TASK2.Presentation
 {
     public class ManagerMenu
     {
-        private readonly ManagerService _managerService;
+        private readonly IConsoleReader _consoleReader;
+        private readonly IManagerService _managerService;
 
-        public ManagerMenu()
+        public ManagerMenu(IManagerService managerService, IConsoleReader consoleReader)
         {
-            _managerService = new ManagerService();
+            _managerService = managerService;
+            _consoleReader = consoleReader;
         }
+
 
         public void Display()
         {
@@ -72,28 +75,28 @@ namespace TASK2.Presentation
             Console.WriteLine("=== Filter Bookings ===");
 
             Console.Write("Enter Passenger Email (or press Enter to skip): ");
-            string? passengerEmail = ReadOptionalText();
+            string? passengerEmail = _consoleReader.ReadOptionalText();
 
             Console.Write("Enter Flight ID (or press Enter to skip): ");
-            int? flightId = ReadOptionalInt();
+            int? flightId = _consoleReader.ReadOptionalInt();
 
             Console.Write("Enter Max Price (or press Enter to skip): ");
-            decimal? maxPrice = ReadOptionalDecimal();
+            decimal? maxPrice = _consoleReader.ReadOptionalDecimal();
 
             Console.Write("Enter Departure Country (or press Enter to skip): ");
-            string? departureCountry = ReadOptionalText();
+            string? departureCountry = _consoleReader.ReadOptionalText();
 
             Console.Write("Enter Destination Country (or press Enter to skip): ");
-            string? destinationCountry = ReadOptionalText();
+            string? destinationCountry = _consoleReader.ReadOptionalText();
 
             Console.Write("Enter Departure Airport (or press Enter to skip): ");
-            string? departureAirport = ReadOptionalText();
+            string? departureAirport = _consoleReader.ReadOptionalText();
 
             Console.Write("Enter Arrival Airport (or press Enter to skip): ");
-            string? arrivalAirport = ReadOptionalText();
+            string? arrivalAirport = _consoleReader.ReadOptionalText();
 
             Console.Write("Enter Departure Date yyyy-MM-dd (or press Enter to skip): ");
-            DateTime? departureDate = ReadOptionalDate();
+            DateTime? departureDate = _consoleReader.ReadOptionalDate();
 
             Console.WriteLine("Select Class:");
             Console.WriteLine("1. Economy");
@@ -101,18 +104,21 @@ namespace TASK2.Presentation
             Console.WriteLine("3. First Class");
             Console.WriteLine("Press Enter to skip");
             Console.Write("Your choice: ");
-            FlightClass? selectedClass = ReadOptionalFlightClass();
+            FlightClass? selectedClass = _consoleReader.ReadOptionalFlightClass();
 
             var bookings = _managerService.FilterBookings(
-                passengerEmail: passengerEmail,
-                flightId: flightId,
-                maxPrice: maxPrice,
-                departureCountry: departureCountry,
-                destinationCountry: destinationCountry,
-                departureAirport: departureAirport,
-                arrivalAirport: arrivalAirport,
-                departureDate: departureDate,
-                flightClass: selectedClass
+                new BookingFilter
+                {
+                    PassengerEmail = passengerEmail,
+                    FlightId = flightId,
+                    MaxPrice = maxPrice,
+                    DepartureCountry = departureCountry,
+                    DestinationCountry = destinationCountry,
+                    DepartureAirport = departureAirport,
+                    ArrivalAirport = arrivalAirport,
+                    DepartureDate = departureDate,
+                    FlightClass = selectedClass
+                }
             );
 
             Console.WriteLine("\n--- Filtered Bookings Results ---");
@@ -126,7 +132,7 @@ namespace TASK2.Presentation
                 foreach (var b in bookings)
                 {
                     Console.WriteLine(
-                        $"[Booking ID: {b.Id}] Passenger: {b.PassengerEmail} | " +
+                        $"[Booking ID: {b.Id}] Passenger: {b.Passenger.Email} | " +
                         $"Flight ID: {b.FlightId} | Class: {b.SelectedClass} | " +
                         $"Price Paid: {b.PricePaid}$"
                     );
@@ -245,7 +251,7 @@ if (result.IsSuccess)
             Console.Clear();
             Console.WriteLine("=== All Flights ===");
 
-            var flights = _managerService.GetAllFlights();
+            var flights = _managerService.GetAll();
 
             if (flights.Count == 0)
             {
@@ -267,41 +273,6 @@ if (result.IsSuccess)
             Console.ReadLine();
         }
 
-        private string? ReadOptionalText()
-        {
-            string? input = Console.ReadLine();
-            return string.IsNullOrWhiteSpace(input) ? null : input.Trim();
-        }
 
-        private int? ReadOptionalInt()
-        {
-            string? input = Console.ReadLine();
-            return int.TryParse(input, out int value) ? value : null;
-        }
-
-        private decimal? ReadOptionalDecimal()
-        {
-            string? input = Console.ReadLine();
-            return decimal.TryParse(input, out decimal value) ? value : null;
-        }
-
-        private DateTime? ReadOptionalDate()
-        {
-            string? input = Console.ReadLine();
-            return DateTime.TryParse(input, out DateTime date) ? date.Date : null;
-        }
-
-        private FlightClass? ReadOptionalFlightClass()
-        {
-            string? input = Console.ReadLine();
-
-            return input switch
-            {
-                "1" => FlightClass.Economy,
-                "2" => FlightClass.Business,
-                "3" => FlightClass.FirstClass,
-                _ => null
-            };
-        }
     }
 }

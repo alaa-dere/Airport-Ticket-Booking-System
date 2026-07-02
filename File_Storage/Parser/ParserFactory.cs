@@ -1,4 +1,4 @@
-namespace TASK2.File_Storage;
+namespace TASK2.File_Storage.Parser;
 
 public static class ParserFactory
 {

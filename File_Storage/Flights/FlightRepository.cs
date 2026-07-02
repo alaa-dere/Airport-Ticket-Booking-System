@@ -5,14 +5,27 @@ using System.Globalization;
 using System.Linq;
 using TASK2.Models;
 
-namespace TASK2.File_Storage;
+namespace TASK2.File_Storage.Flights;
+using TASK2.File_Storage.Parser;
 
-public class FlightRepository
+
+public class FlightRepository : IFlightRepository
 {
     private static readonly string FilePath = StoragePath.Resolve(AppConstants.FlightsFileName);
     private static readonly IParser Parser = ParserFactory.GetParser(Path.GetExtension(FilePath).TrimStart('.'));
+    private readonly List<Flight> _flights;
 
-    public List<Flight> GetAll()
+    public FlightRepository()
+    {
+        _flights = LoadFlightsFromFile();
+    }
+
+    public IReadOnlyCollection<Flight> GetAll()
+    {
+        return _flights.ToList();
+    }
+
+    private List<Flight> LoadFlightsFromFile()
     {
         var flights = new List<Flight>();
 
@@ -49,17 +62,15 @@ public class FlightRepository
         return flights;
     }
 
-    public void Add(List<Flight> newFlights)
+    public void Add(ICollection<Flight> newFlights)
     {
-        var flights = GetAll();
-        flights.AddRange(newFlights);
-        SaveAll(flights);
+        _flights.AddRange(newFlights);
+        WriteFlightsToFile(_flights);
     }
 
     public void Update(Flight updatedFlight)
     {
-        var flights = GetAll();
-        var existingFlight = flights.FirstOrDefault(f => f.Id == updatedFlight.Id);
+        var existingFlight = _flights.FirstOrDefault(f => f.Id == updatedFlight.Id);
         if (existingFlight != null)
         {
             existingFlight.DepartureCountry = updatedFlight.DepartureCountry;
@@ -68,22 +79,28 @@ public class FlightRepository
             existingFlight.ArrivalAirport = updatedFlight.ArrivalAirport;
             existingFlight.DepartureTime = updatedFlight.DepartureTime;
             existingFlight.BasePrice = updatedFlight.BasePrice;
-            SaveAll(flights);
+            WriteFlightsToFile(_flights);
         }
     }
 
     public void Delete(int id)
     {
-        var flights = GetAll();
-        var flightToDelete = flights.FirstOrDefault(f => f.Id == id);
+        var flightToDelete = _flights.FirstOrDefault(f => f.Id == id);
         if (flightToDelete != null)
         {
-            flights.Remove(flightToDelete);
-            SaveAll(flights);
+            _flights.Remove(flightToDelete);
+            WriteFlightsToFile(_flights);
         }
     }
 
-    public void SaveAll(List<Flight> flights)
+    public void SaveAll(ICollection<Flight> flights)
+    {
+        _flights.Clear();
+        _flights.AddRange(flights);
+        WriteFlightsToFile(_flights);
+    }
+
+    private static void WriteFlightsToFile(List<Flight> flights)
     {
         var lines = new List<string> { "Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price" };
         
@@ -98,4 +115,17 @@ public class FlightRepository
         
         File.WriteAllLines(FilePath, lines);
     }
+     public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
+        {
+            return _flights.Where(f =>
+                (string.IsNullOrEmpty(filter.DepartureCountry) || f.DepartureCountry?.Equals(filter.DepartureCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(filter.DestinationCountry) || f.DestinationCountry?.Equals(filter.DestinationCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(filter.DepartureAirport) || f.DepartureAirport?.Equals(filter.DepartureAirport, StringComparison.OrdinalIgnoreCase) == true) &&
+                (string.IsNullOrEmpty(filter.ArrivalAirport) || f.ArrivalAirport?.Equals(filter.ArrivalAirport, StringComparison.OrdinalIgnoreCase) == true) &&
+                (!filter.DepartureDate.HasValue || f.DepartureTime.Date == filter.DepartureDate.Value.Date) &&
+                (!filter.MaxPrice.HasValue || f.GetPriceForClass(filter.FlightClass ?? FlightClass.Economy) <= filter.MaxPrice.Value)
+            ).ToList();
+        }
+
+    
 }

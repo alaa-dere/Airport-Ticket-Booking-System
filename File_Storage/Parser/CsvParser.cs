@@ -1,4 +1,4 @@
-namespace TASK2.File_Storage;
+namespace TASK2.File_Storage.Parser;
 public class CsvParser : IParser
 {
     public string[] ParseLine(string line)

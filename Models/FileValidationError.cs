@@ -1,6 +1,6 @@
 namespace TASK2.Models
 {
-    public class ValidationError
+    public class FileValidationError
     {
         public int RowNumber { get; set; }
         public string FieldName { get; set; } = string.Empty;

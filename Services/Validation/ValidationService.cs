@@ -3,31 +3,31 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Linq;
-using TASK2.File_Storage;
+using TASK2.File_Storage.Flights;
+using TASK2.File_Storage.Parser;
 using TASK2.Models;
 
-namespace TASK2.Services
-{
-    public class ValidationService
+namespace TASK2.Services.Validation;
+    public class ValidationService : IValidationService
     {
-        private readonly FlightRepository _flightRepo;
+        private readonly IFlightRepository _flightRepo;
         private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
-        public ValidationService()
+        public ValidationService(IFlightRepository flightRepo)
         {
-            _flightRepo = new FlightRepository();
+            _flightRepo = flightRepo;
         }
 
-        public (bool IsValid, List<ValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(
+        public (bool IsValid, IReadOnlyCollection<FileValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(
             string csvLine,
             int rowNumber,
-            List<Flight>? existingFlights = null)
+            IReadOnlyCollection<Flight>? existingFlights = null)
         {
-            var errors = new List<ValidationError>();
+            var errors = new List<FileValidationError>();
 
             if (string.IsNullOrWhiteSpace(csvLine))
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "Row",
@@ -41,7 +41,7 @@ namespace TASK2.Services
 
             if (columns.Length != 7)
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "Row",
@@ -63,7 +63,7 @@ namespace TASK2.Services
 
             if (!int.TryParse(idStr, out id) || id <= 0)
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "Id",
@@ -72,7 +72,7 @@ namespace TASK2.Services
             }
             else if ((existingFlights ?? _flightRepo.GetAll()).Any(f => f.Id == id))
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "Id",
@@ -89,7 +89,7 @@ namespace TASK2.Services
                     DateTimeStyles.None,
                     out departureTime))
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "DepartureTime",
@@ -105,7 +105,7 @@ namespace TASK2.Services
                     CultureInfo.InvariantCulture,
                     out basePrice) || basePrice < 0)
             {
-                errors.Add(new ValidationError
+                errors.Add(new FileValidationError
                 {
                     RowNumber = rowNumber,
                     FieldName = "BasePrice",
@@ -134,7 +134,7 @@ namespace TASK2.Services
             return (true, errors, flight);
         }
 
-        private static void AddModelValidationErrors(Flight flight, int rowNumber, List<ValidationError> errors)
+        private static void AddModelValidationErrors(Flight flight, int rowNumber, ICollection<FileValidationError> errors)
         {
             var validationResults = new List<ValidationResult>();
             var validationContext = new ValidationContext(flight);
@@ -154,7 +154,7 @@ namespace TASK2.Services
                         continue;
                     }
 
-                    errors.Add(new ValidationError
+                    errors.Add(new FileValidationError
                     {
                         RowNumber = rowNumber,
                         FieldName = fieldName,
@@ -164,4 +164,4 @@ namespace TASK2.Services
             }
         }
     }
-}
+

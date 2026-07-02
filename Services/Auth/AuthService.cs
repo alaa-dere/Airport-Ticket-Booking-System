@@ -1,24 +1,29 @@
-using TASK2.File_Storage;
+using TASK2.File_Storage.Parser;
+using TASK2.File_Storage.Users;
+
 using TASK2.Models;
 
-namespace TASK2.Services
+namespace TASK2.Services.Auth
 {
-    public class AuthService
+    public class AuthService : IAuthService
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserRepository _userRepository;
         private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
-        public AuthService()
+        public AuthService(IUserRepository userRepository)
         {
-            _userRepository = new UserRepository();
+            _userRepository = userRepository;
         }
+    
 
         public User? Login(string email, string password)
         {
-            return _userRepository.GetAll()
-                .FirstOrDefault(user =>
-                    user.Email.Equals(email, StringComparison.OrdinalIgnoreCase) &&
-                    user.Password == password);
+            var user = _userRepository.GetUserByEmail(email);
+
+            if (user == null || user.Password != password)
+                return null;
+
+            return user;
         }
 
         public bool RegisterPassenger(string name, string email, string password)
@@ -33,9 +38,7 @@ namespace TASK2.Services
                 return false;
             }
 
-            var users = _userRepository.GetAll();
-
-            if (users.Any(user => user.Email.Equals(email, StringComparison.OrdinalIgnoreCase)))
+            if (_userRepository.GetUserByEmail(email) != null)
                 return false;
 
             _userRepository.Add(new User

@@ -1,6 +1,6 @@
 using System;
-using TASK2.File_Storage;
-using TASK2.Services;
+using TASK2.File_Storage.Parser;
+using TASK2.Services.Passengers;
 using TASK2.Models;
 
 namespace TASK2.Presentation
@@ -8,12 +8,13 @@ namespace TASK2.Presentation
     public class PassengerMenu
     {
         private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
-        private readonly PassengerService _passengerService;
+        private readonly IPassengerService _passengerService;
 
-        public PassengerMenu()
+        public PassengerMenu(IPassengerService passengerService)
         {
-            _passengerService = new PassengerService();
-        }
+            _passengerService = passengerService;
+        } 
+
 
         public void Display(string email)
         {
@@ -82,7 +83,7 @@ namespace TASK2.Presentation
             Console.ReadLine();
         }
 
-        private List<Flight> GetFlightSearchResults()
+        private IReadOnlyCollection<Flight> GetFlightSearchResults()
         {
             Console.Write("Enter Departure Country (or press Enter to skip): ");
             string? departureCountry = ReadOptionalText();
@@ -111,13 +112,16 @@ namespace TASK2.Presentation
             FlightClass? selectedClass = ReadOptionalFlightClass();
 
             return _passengerService.SearchFlights(
-                departureCountry: departureCountry,
-                destinationCountry: destinationCountry,
-                departureAirport: departureAirport,
-                arrivalAirport: arrivalAirport,
-                departureDate: departureDate,
-                maxPrice: maxPrice,
-                flightClass: selectedClass
+                new FlightFilter
+                {
+                    DepartureCountry = departureCountry,
+                    DestinationCountry = destinationCountry,
+                    DepartureAirport = departureAirport,
+                    ArrivalAirport = arrivalAirport,
+                    DepartureDate = departureDate,
+                    MaxPrice = maxPrice,
+                    FlightClass = selectedClass
+                }
             );
         }
 
@@ -171,7 +175,7 @@ namespace TASK2.Presentation
                 return;
             }
 
-            bool success = _passengerService.BookFlight(
+            bool success = _passengerService.Book(
                 flightId,
                 email,
                 name,
@@ -265,7 +269,7 @@ namespace TASK2.Presentation
                 return;
             }
 
-            bool success = _passengerService.ModifyBooking(
+            bool success = _passengerService.Modify(
                 bookingId,
                 email,
                 newFlightId,
@@ -303,7 +307,7 @@ namespace TASK2.Presentation
                 return;
             }
 
-            bool success = _passengerService.CancelBooking(bookingId, email);
+            bool success = _passengerService.Cancel(bookingId, email);
 
             Console.WriteLine(success
                 ? "\nBooking canceled successfully!"
@@ -313,7 +317,7 @@ namespace TASK2.Presentation
             Console.ReadLine();
         }
 
-        private void DisplayFlights(List<Flight> flights)
+        private void DisplayFlights(IReadOnlyCollection<Flight> flights)
         {
             if (flights.Count == 0)
             {
@@ -331,7 +335,7 @@ namespace TASK2.Presentation
             }
         }
 
-        private void DisplayBookings(List<Booking> bookings)
+        private void DisplayBookings(IReadOnlyCollection<Booking> bookings)
         {
             if (bookings.Count == 0)
             {

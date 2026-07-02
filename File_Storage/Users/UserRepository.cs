@@ -1,16 +1,33 @@
 using TASK2.Models;
 
-namespace TASK2.File_Storage;
+namespace TASK2.File_Storage.Users;
+using TASK2.File_Storage.Parser;
 
-public class UserRepository
+public class UserRepository : IUserRepository
 {
     private static readonly string FilePath = StoragePath.Resolve(AppConstants.UsersFileName);
     private static readonly IParser Parser = ParserFactory.GetParser(Path.GetExtension(FilePath).TrimStart('.'));
+    private readonly List<User> _users;
 
-    public List<User> GetAll()
+    public UserRepository()
     {
         EnsureFileExists();
+        _users = LoadUsersFromFile();
+    }
 
+    public IReadOnlyCollection<User> GetAll()
+    {
+        return _users.ToList();
+    }
+
+    public User? GetUserByEmail(string email)
+    {
+        return _users.FirstOrDefault(user =>
+            user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private List<User> LoadUsersFromFile()
+    {
         var users = new List<User>();
         var lines = File.ReadAllLines(FilePath).Skip(1);
 
@@ -41,15 +58,43 @@ public class UserRepository
 
     public void Add(User user)
     {
-        var users = GetAll();
-        var maxId = users.Count > 0 ? users.Max(u => u.Id) : 0;
+        var maxId = _users.Count > 0 ? _users.Max(u => u.Id) : 0;
 
         user.Id = maxId + 1;
-        users.Add(user);
-        SaveAll(users);
+        _users.Add(user);
+        WriteUsersToFile(_users);
     }
 
-    private static void SaveAll(List<User> users)
+    private void EnsureFileExists()
+    {
+        if (File.Exists(FilePath))
+            return;
+
+        CreateDefaultUsersFile();
+    }
+
+    private void CreateDefaultUsersFile()
+    {
+        WriteUsersToFile(GetDefaultUsers());
+    }
+
+    private List<User> GetDefaultUsers()
+    {
+        return new List<User>
+        {
+            new User
+            {
+                Id = 1,
+                Name = "System Manager",
+                Email = "admin@airport.com",
+                Password = "admin123",
+                Role = UserRole.Manager
+            }
+        };
+    }
+
+    
+    private static void WriteUsersToFile(List<User> users)
     {
         var lines = new List<string> { "Id,Name,Email,Password,Role" };
 
@@ -61,25 +106,5 @@ public class UserRepository
             user.Role)));
 
         File.WriteAllLines(FilePath, lines);
-    }
-
-    private static void EnsureFileExists()
-    {
-        if (File.Exists(FilePath))
-            return;
-
-        var defaultUsers = new List<User>
-        {
-            new User
-            {
-                Id = 1,
-                Name = "System Manager",
-                Email = "admin@airport.com",
-                Password = "admin123",
-                Role = UserRole.Manager
-            }
-        };
-
-        SaveAll(defaultUsers);
     }
 }
