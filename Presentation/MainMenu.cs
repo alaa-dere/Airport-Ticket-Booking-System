@@ -61,7 +61,7 @@ namespace TASK2.Presentation
                         else
                             {
                                 var passengerMenu = new PassengerMenu(_passengerService);
-                                passengerMenu.Display(user.Email);
+                                passengerMenu.Display(new PassengerEmail(user.Email));
                             }    
                             break;
 

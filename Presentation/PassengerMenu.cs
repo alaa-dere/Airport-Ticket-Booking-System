@@ -1,22 +1,26 @@
 using System;
-using TASK2.File_Storage.Parser;
 using TASK2.Services.Passengers;
 using TASK2.Models;
+using TASK2.Presentation.Readers;
+using TASK2.Presentation.Renderers;
 
 namespace TASK2.Presentation
 {
     public class PassengerMenu
     {
-        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
+        private readonly IMenuInputReader _inputReader;
         private readonly IPassengerService _passengerService;
+        private readonly IMenuRenderer _renderer;
 
         public PassengerMenu(IPassengerService passengerService)
         {
             _passengerService = passengerService;
+            _inputReader = new MenuInputReader(new ConsoleReader());
+            _renderer = new MenuRenderer();
         } 
 
 
-        public void Display(string email)
+        public void Display(PassengerEmail email)
         {
             bool logout = false;
 
@@ -77,220 +81,185 @@ namespace TASK2.Presentation
             var flights = GetFlightSearchResults();
 
             Console.WriteLine("\n--- Available Flights Found ---");
-            DisplayFlights(flights);
+            _renderer.DisplayPassengerFlights(flights);
 
-            Console.WriteLine("\nPress Enter to return to menu.");
+            _renderer.WaitForReturn();
             Console.ReadLine();
         }
 
         private IReadOnlyCollection<Flight> GetFlightSearchResults()
         {
-            Console.Write("Enter Departure Country (or press Enter to skip): ");
-            string? departureCountry = ReadOptionalText();
-
-            Console.Write("Enter Destination Country (or press Enter to skip): ");
-            string? destinationCountry = ReadOptionalText();
-
-            Console.Write("Enter Departure Airport (or press Enter to skip): ");
-            string? departureAirport = ReadOptionalText();
-
-            Console.Write("Enter Arrival Airport (or press Enter to skip): ");
-            string? arrivalAirport = ReadOptionalText();
-
-            Console.Write("Enter Departure Date yyyy-MM-dd (or press Enter to skip): ");
-            DateTime? departureDate = ReadOptionalDate();
-
-            Console.Write("Enter Max Price (or press Enter to skip): ");
-            decimal? maxPrice = ReadOptionalDecimal();
-
-            Console.WriteLine("Select Class:");
-            Console.WriteLine("1. Economy");
-            Console.WriteLine("2. Business");
-            Console.WriteLine("3. First Class");
-            Console.WriteLine("Press Enter to skip");
-            Console.Write("Your choice: ");
-            FlightClass? selectedClass = ReadOptionalFlightClass();
-
-            return _passengerService.SearchFlights(
-                new FlightFilter
-                {
-                    DepartureCountry = departureCountry,
-                    DestinationCountry = destinationCountry,
-                    DepartureAirport = departureAirport,
-                    ArrivalAirport = arrivalAirport,
-                    DepartureDate = departureDate,
-                    MaxPrice = maxPrice,
-                    FlightClass = selectedClass
-                }
-            );
+            FlightFilter filter = _inputReader.ReadFlightFilter();
+            return _passengerService.SearchFlights(filter);
         }
 
-        private void HandleBookFlight(string email)
+        private void HandleBookFlight(PassengerEmail email)
         {
             Console.Clear();
             Console.WriteLine("=== Book a Flight ===");
 
-            var flights = GetFlightSearchResults();
+            var flights = SearchAndDisplayFlights("\n--- Search Results ---");
 
-            Console.WriteLine("\n--- Search Results ---");
-            DisplayFlights(flights);
-
-            if (flights.Count == 0)
-            {
-                Console.WriteLine("\nNo flights available to book.");
-                Console.ReadLine();
+            if (!EnsureFlightsAvailableToBook(flights))
                 return;
-            }
 
-            Console.Write("\nEnter Flight ID to book: ");
-            if (!int.TryParse(Console.ReadLine(), out int flightId))
-            {
-                Console.WriteLine("Invalid Flight ID.");
-                Console.ReadLine();
+            if (!_inputReader.TryReadFlightIdFromSearchResults(flights, "\nEnter Flight ID to book: ", out int flightId))
                 return;
-            }
 
-            if (!flights.Any(f => f.Id == flightId))
-            {
-                Console.WriteLine("Selected Flight ID is not in the search results.");
-                Console.ReadLine();
+            string name = _inputReader.ReadRequiredSimpleText("Enter Passenger Name: ");
+            string phone = _inputReader.ReadRequiredSimpleText("Enter Passenger Phone: ");
+
+            if (!_inputReader.TryReadRequiredFlightClass("\nSelect Class:", out FlightClass selectedClass))
                 return;
-            }
 
-            string name = ReadRequiredSimpleText("Enter Passenger Name: ");
-            string phone = ReadRequiredSimpleText("Enter Passenger Phone: ");
+            bool success = BookFlightForPassenger(flightId, email, name, phone, selectedClass);
 
-            Console.WriteLine("\nSelect Class:");
-            Console.WriteLine("1. Economy");
-            Console.WriteLine("2. Business");
-            Console.WriteLine("3. First Class");
-            Console.Write("Your choice: ");
-
-            FlightClass? selectedClass = ReadOptionalFlightClass();
-
-            if (selectedClass == null)
-            {
-                Console.WriteLine("Invalid class selected.");
-                Console.ReadLine();
-                return;
-            }
-
-            bool success = _passengerService.Book(
-                flightId,
-                email,
-                name,
-                phone,
-                selectedClass.Value
-            );
-
-            Console.WriteLine(success
-                ? "\nBooking completed successfully!"
-                : "\nBooking failed. Flight not found or already booked.");
-
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            DisplayBookingResult(success);
+            _renderer.WaitForReturn();
         }
 
-        private void HandleViewMyBookings(string email)
+        private void HandleViewMyBookings(PassengerEmail email)
         {
             Console.Clear();
             Console.WriteLine("=== My Bookings ===");
 
-            var bookings = _passengerService.GetMyBookings(email);
-            DisplayBookings(bookings);
+            var bookings = _passengerService.GetMyBookings(email.Value);
+            _renderer.DisplayPassengerBookings(bookings);
 
             Console.WriteLine("\nPress Enter to return.");
             Console.ReadLine();
         }
 
-        private void HandleModifyBooking(string email)
+        private void HandleModifyBooking(PassengerEmail email)
         {
             Console.Clear();
             Console.WriteLine("=== Modify Booking ===");
 
-            var myBookings = _passengerService.GetMyBookings(email);
-            DisplayBookings(myBookings);
+            var myBookings = DisplayBookingsAvailableForModification(email);
 
-            if (myBookings.Count == 0)
-            {
-                Console.WriteLine("\nYou have no bookings to modify.");
-                Console.ReadLine();
+            if (!EnsureBookingsAvailableToModify(myBookings))
                 return;
-            }
 
-            Console.Write("\nEnter Booking ID to modify: ");
-            if (!int.TryParse(Console.ReadLine(), out int bookingId))
-            {
-                Console.WriteLine("Invalid Booking ID.");
-                Console.ReadLine();
+            if (!_inputReader.TryReadBookingIdToModify(out int bookingId))
                 return;
-            }
 
             Console.WriteLine("\nNow search for the new flight:");
+            var flights = SearchAndDisplayFlights("\n--- Available Flights ---");
+
+            if (!EnsureFlightsAvailableToModify(flights))
+                return;
+
+            if (!_inputReader.TryReadFlightIdFromSearchResults(flights, "\nEnter New Flight ID: ", out int newFlightId))
+                return;
+
+            if (!_inputReader.TryReadRequiredFlightClass("\nSelect New Class:", out FlightClass newClass))
+                return;
+
+            bool success = ModifyPassengerBooking(bookingId, email, newFlightId, newClass);
+
+            DisplayModificationResult(success);
+            _renderer.WaitForReturn();
+        }
+
+        private IReadOnlyCollection<Flight> SearchAndDisplayFlights(string heading)
+        {
             var flights = GetFlightSearchResults();
 
-            Console.WriteLine("\n--- Available Flights ---");
-            DisplayFlights(flights);
+            Console.WriteLine(heading);
+            _renderer.DisplayPassengerFlights(flights);
 
-            if (flights.Count == 0)
-            {
-                Console.WriteLine("\nNo flights available.");
-                Console.ReadLine();
-                return;
-            }
+            return flights;
+        }
 
-            Console.Write("\nEnter New Flight ID: ");
-            if (!int.TryParse(Console.ReadLine(), out int newFlightId))
-            {
-                Console.WriteLine("Invalid Flight ID.");
-                Console.ReadLine();
-                return;
-            }
+        private bool EnsureFlightsAvailableToBook(IReadOnlyCollection<Flight> flights)
+        {
+            if (flights.Count != 0)
+                return true;
 
-            if (!flights.Any(f => f.Id == newFlightId))
-            {
-                Console.WriteLine("Selected Flight ID is not in the search results.");
-                Console.ReadLine();
-                return;
-            }
+            Console.WriteLine("\nNo flights available to book.");
+            Console.ReadLine();
+            return false;
+        }
 
-            Console.WriteLine("\nSelect New Class:");
-            Console.WriteLine("1. Economy");
-            Console.WriteLine("2. Business");
-            Console.WriteLine("3. First Class");
-            Console.Write("Your choice: ");
+        private bool EnsureFlightsAvailableToModify(IReadOnlyCollection<Flight> flights)
+        {
+            if (flights.Count != 0)
+                return true;
 
-            FlightClass? newClass = ReadOptionalFlightClass();
+            Console.WriteLine("\nNo flights available.");
+            Console.ReadLine();
+            return false;
+        }
 
-            if (newClass == null)
-            {
-                Console.WriteLine("Invalid class selected.");
-                Console.ReadLine();
-                return;
-            }
-
-            bool success = _passengerService.Modify(
-                bookingId,
-                email,
-                newFlightId,
-                newClass.Value
+        private bool BookFlightForPassenger(
+            int flightId,
+            PassengerEmail email,
+            string name,
+            string phone,
+            FlightClass selectedClass)
+        {
+            return _passengerService.Book(
+                flightId,
+                email.Value,
+                name,
+                phone,
+                selectedClass
             );
+        }
 
+        private void DisplayBookingResult(bool success)
+        {
+            Console.WriteLine(success
+                ? "\nBooking completed successfully!"
+                : "\nBooking failed. Flight not found or already booked.");
+        }
+
+        private IReadOnlyCollection<Booking> DisplayBookingsAvailableForModification(PassengerEmail email)
+        {
+            var myBookings = _passengerService.GetMyBookings(email.Value);
+            _renderer.DisplayPassengerBookings(myBookings);
+
+            return myBookings;
+        }
+
+        private bool EnsureBookingsAvailableToModify(IReadOnlyCollection<Booking> myBookings)
+        {
+            if (myBookings.Count != 0)
+                return true;
+
+            Console.WriteLine("\nYou have no bookings to modify.");
+            Console.ReadLine();
+            return false;
+        }
+
+        private bool ModifyPassengerBooking(
+            int bookingId,
+            PassengerEmail email,
+            int newFlightId,
+            FlightClass newClass)
+        {
+            return _passengerService.Modify(
+                bookingId,
+                email.Value,
+                newFlightId,
+                newClass
+            );
+        }
+
+        private void DisplayModificationResult(bool success)
+        {
             Console.WriteLine(success
                 ? "\nBooking modified successfully!"
                 : "\nModification failed. Check Booking ID, Flight ID, or duplicate booking.");
-
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
         }
 
-        private void HandleCancelBooking(string email)
+        private void HandleCancelBooking(PassengerEmail email)
         {
             Console.Clear();
             Console.WriteLine("=== Cancel Booking ===");
 
-            var myBookings = _passengerService.GetMyBookings(email);
-            DisplayBookings(myBookings);
+            var myBookings = _passengerService.GetMyBookings(email.Value);
+            _renderer.DisplayPassengerBookings(myBookings);
 
             if (myBookings.Count == 0)
             {
@@ -307,7 +276,7 @@ namespace TASK2.Presentation
                 return;
             }
 
-            bool success = _passengerService.Cancel(bookingId, email);
+            bool success = _passengerService.Cancel(bookingId, email.Value);
 
             Console.WriteLine(success
                 ? "\nBooking canceled successfully!"
@@ -315,97 +284,6 @@ namespace TASK2.Presentation
 
             Console.WriteLine("\nPress Enter to return.");
             Console.ReadLine();
-        }
-
-        private void DisplayFlights(IReadOnlyCollection<Flight> flights)
-        {
-            if (flights.Count == 0)
-            {
-                Console.WriteLine("No flights matched your search criteria.");
-                return;
-            }
-
-            foreach (var f in flights)
-            {
-                Console.WriteLine(
-                    $"[ID: {f.Id}] {f.DepartureCountry} ({f.DepartureAirport}) -> " +
-                    $"{f.DestinationCountry} ({f.ArrivalAirport}) | " +
-                    $"Date: {f.DepartureTime:yyyy-MM-dd} | Base Price: {f.BasePrice}$"
-                );
-            }
-        }
-
-        private void DisplayBookings(IReadOnlyCollection<Booking> bookings)
-        {
-            if (bookings.Count == 0)
-            {
-                Console.WriteLine("You have no active bookings.");
-                return;
-            }
-
-            foreach (var b in bookings)
-            {
-                Console.WriteLine(
-                    $"Booking ID: {b.Id} | Flight ID: {b.FlightId} | " +
-                    $"Class: {b.SelectedClass} | Paid: {b.PricePaid}$"
-                );
-            }
-        }
-
-        private string? ReadOptionalText()
-        {
-            string? input = Console.ReadLine();
-            return string.IsNullOrWhiteSpace(input) ? null : input.Trim();
-        }
-
-        private string ReadRequiredSimpleText(string message)
-        {
-            while (true)
-            {
-                Console.Write(message);
-                string? input = Console.ReadLine();
-
-                if (string.IsNullOrWhiteSpace(input))
-                {
-                    Console.WriteLine("This field is required.");
-                    continue;
-                }
-
-                input = input.Trim();
-
-                if (!Parser.IsValidSimpleValue(input))
-                {
-                    Console.WriteLine("This field cannot contain commas.");
-                    continue;
-                }
-
-                return input;
-            }
-        }
-
-        private decimal? ReadOptionalDecimal()
-        {
-            string? input = Console.ReadLine();
-            return decimal.TryParse(input, out decimal value) ? value : null;
-        }
-
-        private DateTime? ReadOptionalDate()
-        {
-            string? input = Console.ReadLine();
-            return DateTime.TryParse(input, out DateTime date) ? date.Date : null;
-        }
-
-        private FlightClass? ReadOptionalFlightClass()
-        {
-            string? input = Console.ReadLine();
-
-            return input switch
-            {
-                "1" => FlightClass.Economy,
-                "2" => FlightClass.Business,
-                "3" => FlightClass.FirstClass,
-                _ => null
-            };
         }
     }
 }

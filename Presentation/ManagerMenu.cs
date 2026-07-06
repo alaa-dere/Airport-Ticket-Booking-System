@@ -2,17 +2,20 @@ using System;
 using TASK2.Services.Manager;
 using TASK2.Models;
 using TASK2.Presentation.Readers;
+using TASK2.Presentation.Renderers;
 namespace TASK2.Presentation
 {
     public class ManagerMenu
     {
-        private readonly IConsoleReader _consoleReader;
+        private readonly IMenuInputReader _inputReader;
         private readonly IManagerService _managerService;
+        private readonly IMenuRenderer _renderer;
 
         public ManagerMenu(IManagerService managerService, IConsoleReader consoleReader)
         {
             _managerService = managerService;
-            _consoleReader = consoleReader;
+            _inputReader = new MenuInputReader(consoleReader);
+            _renderer = new MenuRenderer();
         }
 
 
@@ -74,73 +77,11 @@ namespace TASK2.Presentation
             Console.Clear();
             Console.WriteLine("=== Filter Bookings ===");
 
-            Console.Write("Enter Passenger Email (or press Enter to skip): ");
-            string? passengerEmail = _consoleReader.ReadOptionalText();
+            BookingFilter filter = _inputReader.ReadBookingFilter();
+            var bookings = _managerService.FilterBookings(filter);
 
-            Console.Write("Enter Flight ID (or press Enter to skip): ");
-            int? flightId = _consoleReader.ReadOptionalInt();
-
-            Console.Write("Enter Max Price (or press Enter to skip): ");
-            decimal? maxPrice = _consoleReader.ReadOptionalDecimal();
-
-            Console.Write("Enter Departure Country (or press Enter to skip): ");
-            string? departureCountry = _consoleReader.ReadOptionalText();
-
-            Console.Write("Enter Destination Country (or press Enter to skip): ");
-            string? destinationCountry = _consoleReader.ReadOptionalText();
-
-            Console.Write("Enter Departure Airport (or press Enter to skip): ");
-            string? departureAirport = _consoleReader.ReadOptionalText();
-
-            Console.Write("Enter Arrival Airport (or press Enter to skip): ");
-            string? arrivalAirport = _consoleReader.ReadOptionalText();
-
-            Console.Write("Enter Departure Date yyyy-MM-dd (or press Enter to skip): ");
-            DateTime? departureDate = _consoleReader.ReadOptionalDate();
-
-            Console.WriteLine("Select Class:");
-            Console.WriteLine("1. Economy");
-            Console.WriteLine("2. Business");
-            Console.WriteLine("3. First Class");
-            Console.WriteLine("Press Enter to skip");
-            Console.Write("Your choice: ");
-            FlightClass? selectedClass = _consoleReader.ReadOptionalFlightClass();
-
-            var bookings = _managerService.FilterBookings(
-                new BookingFilter
-                {
-                    PassengerEmail = passengerEmail,
-                    FlightId = flightId,
-                    MaxPrice = maxPrice,
-                    DepartureCountry = departureCountry,
-                    DestinationCountry = destinationCountry,
-                    DepartureAirport = departureAirport,
-                    ArrivalAirport = arrivalAirport,
-                    DepartureDate = departureDate,
-                    FlightClass = selectedClass
-                }
-            );
-
-            Console.WriteLine("\n--- Filtered Bookings Results ---");
-
-            if (bookings.Count == 0)
-            {
-                Console.WriteLine("No bookings matched the filters.");
-            }
-            else
-            {
-                foreach (var b in bookings)
-                {
-                    Console.WriteLine(
-                        $"[Booking ID: {b.Id}] Passenger: {b.Passenger.Email} | " +
-                        $"Flight ID: {b.FlightId} | Class: {b.SelectedClass} | " +
-                        $"Price Paid: {b.PricePaid}$"
-                    );
-                }
-            }
-
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.DisplayFilteredBookings(bookings);
+            _renderer.WaitForReturn();
         }
 
         private void HandleBatchUpload()
@@ -160,27 +101,17 @@ namespace TASK2.Presentation
 
             var result = _managerService.BatchUploadFlights(filePath.Trim());
 
-if (result.IsSuccess)
+            if (result.IsSuccess)
             {
                 Console.WriteLine("\nAll flights imported successfully.");
             }
             else
             {
                 Console.WriteLine("\nImport failed. Validation errors:");
-                Console.WriteLine("----------------------------------------");
-
-                foreach (var err in result.Errors)
-                {
-                    Console.WriteLine(
-                        $"[Row {err.RowNumber}] Field: {err.FieldName} -> {err.ErrorMessage}"
-                    );
-                }
-
-                Console.WriteLine("----------------------------------------");
+                _renderer.DisplayValidationErrors(result.Errors);
             }
 
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.WaitForReturn();
         }
 
         private void HandleValidateImportedData()
@@ -207,20 +138,10 @@ if (result.IsSuccess)
             else
             {
                 Console.WriteLine("\nValidation Errors:");
-                Console.WriteLine("----------------------------------------");
-
-                foreach (var err in errors)
-                {
-                    Console.WriteLine(
-                        $"[Row {err.RowNumber}] Field: {err.FieldName} -> {err.ErrorMessage}"
-                    );
-                }
-
-                Console.WriteLine("----------------------------------------");
+                _renderer.DisplayValidationErrors(errors);
             }
 
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.WaitForReturn();
         }
 
         private void HandleValidationGuide()
@@ -230,20 +151,8 @@ if (result.IsSuccess)
 
             var guide = _managerService.GetFlightValidationDetails();
 
-            Console.WriteLine("--------------------------------------------------------------------------------");
-            Console.WriteLine(string.Format("| {0,-18} | {1,-12} | {2,-42} |",
-                "Field Name", "Data Type", "Validation Constraints"));
-            Console.WriteLine("--------------------------------------------------------------------------------");
-
-            foreach (var info in guide)
-            {
-                Console.WriteLine(string.Format("| {0,-18} | {1,-12} | {2,-42} |",
-                    info.FieldName, info.Type, info.Constraints));
-            }
-
-            Console.WriteLine("--------------------------------------------------------------------------------");
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.DisplayValidationGuide(guide);
+            _renderer.WaitForReturn();
         }
 
         private void HandleViewAllFlights()
@@ -253,24 +162,8 @@ if (result.IsSuccess)
 
             var flights = _managerService.GetAll();
 
-            if (flights.Count == 0)
-            {
-                Console.WriteLine("No flights found.");
-            }
-            else
-            {
-                foreach (var f in flights)
-                {
-                    Console.WriteLine(
-                        $"[ID: {f.Id}] {f.DepartureCountry} ({f.DepartureAirport}) -> " +
-                        $"{f.DestinationCountry} ({f.ArrivalAirport}) | " +
-                        $"Date: {f.DepartureTime:yyyy-MM-dd} | Base Price: {f.BasePrice}$"
-                    );
-                }
-            }
-
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.DisplayManagerFlights(flights);
+            _renderer.WaitForReturn();
         }
 
 
