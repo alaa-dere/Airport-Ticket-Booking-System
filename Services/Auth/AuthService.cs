@@ -14,7 +14,6 @@ namespace TASK2.Services.Auth
         {
             _userRepository = userRepository;
         }
-    
 
         public User? Login(string email, string password)
         {

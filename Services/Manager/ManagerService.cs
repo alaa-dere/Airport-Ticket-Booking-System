@@ -80,7 +80,6 @@ namespace TASK2.Services.Manager
             return (true, errors);
         }
 
-
         public IReadOnlyCollection<FieldValidationInfo> GetFlightValidationDetails()
         {
             return typeof(Flight)
@@ -199,6 +198,7 @@ namespace TASK2.Services.Manager
                 _ => value.ToString() ?? string.Empty
             };
         }
+
          public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
         {
             return _bookingService.FilterBookings(filter);

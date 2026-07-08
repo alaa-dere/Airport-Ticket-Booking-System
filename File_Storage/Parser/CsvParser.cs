@@ -20,6 +20,7 @@ public class CsvParser : IParser
             return text;
         }));
     }
+    
     public bool IsValidSimpleValue(string value)
     {
         return !value.Contains(',') &&

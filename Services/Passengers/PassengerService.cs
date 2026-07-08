@@ -72,6 +72,7 @@ namespace TASK2.Services.Passengers
             _bookingService.Add(newBooking);
             return true;
         }
+        
         public bool Cancel(int bookingId, string passengerEmail)
         {
         var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
