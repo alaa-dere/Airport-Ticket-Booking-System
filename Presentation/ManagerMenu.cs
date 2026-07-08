@@ -18,7 +18,6 @@ namespace TASK2.Presentation
             _renderer = new MenuRenderer();
         }
 
-
         public void Display()
         {
             bool logout = false;
