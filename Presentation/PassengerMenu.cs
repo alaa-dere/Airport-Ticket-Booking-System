@@ -126,8 +126,7 @@ namespace TASK2.Presentation
             var bookings = _passengerService.GetMyBookings(email.Value);
             _renderer.DisplayPassengerBookings(bookings);
 
-            Console.WriteLine("\nPress Enter to return.");
-            Console.ReadLine();
+            _renderer.WaitForReturn();
         }
 
         private void HandleModifyBooking(PassengerEmail email)
