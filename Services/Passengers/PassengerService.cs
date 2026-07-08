@@ -118,6 +118,4 @@ namespace TASK2.Services.Passengers
              .ToList();
         }
     }
-
-    
 }

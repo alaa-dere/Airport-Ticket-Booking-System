@@ -8,6 +8,5 @@ namespace TASK2.Services.Validation
             string csvLine,
             int rowNumber,
             IReadOnlyCollection<Flight>? existingFlights = null);
-            
     }
 }

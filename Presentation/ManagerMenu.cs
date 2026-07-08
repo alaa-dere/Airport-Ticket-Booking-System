@@ -165,7 +165,5 @@ namespace TASK2.Presentation
             _renderer.DisplayManagerFlights(flights);
             _renderer.WaitForReturn();
         }
-
-
     }
 }

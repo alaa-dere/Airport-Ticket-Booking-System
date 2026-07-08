@@ -11,5 +11,4 @@ public class BookingFilter
     public string? ArrivalAirport { get; set; }
     public string? PassengerEmail { get; set; }
     public FlightClass? FlightClass { get; set; }
-
 }

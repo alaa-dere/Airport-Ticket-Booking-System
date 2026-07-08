@@ -93,7 +93,6 @@ public class UserRepository : IUserRepository
         };
     }
 
-    
     private static void WriteUsersToFile(List<User> users)
     {
         var lines = new List<string> { "Id,Name,Email,Password,Role" };

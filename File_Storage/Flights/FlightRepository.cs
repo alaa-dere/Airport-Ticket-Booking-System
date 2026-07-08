@@ -252,7 +252,5 @@ public class FlightRepository : IFlightRepository, IBookingRepository
             b.SelectedClass,
             b.PricePaid.ToString(CultureInfo.InvariantCulture))));
         File.WriteAllLines(BookingsFilePath, lines);
-    }       
-
-    
+    }           
 }

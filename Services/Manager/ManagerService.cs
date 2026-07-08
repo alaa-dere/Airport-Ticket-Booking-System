@@ -203,6 +203,5 @@ namespace TASK2.Services.Manager
         {
             return _bookingService.FilterBookings(filter);
         }
-    }
-    
+    }    
 }
