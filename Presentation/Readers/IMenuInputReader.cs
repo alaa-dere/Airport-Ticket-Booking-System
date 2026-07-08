@@ -10,7 +10,8 @@ namespace TASK2.Presentation.Readers
         bool TryReadFlightIdFromSearchResults(
             IReadOnlyCollection<Flight> flights,
             string prompt,
-            out int flightId);
+            out int flightId
+            );
         bool TryReadBookingIdToModify(out int bookingId);
         bool TryReadRequiredFlightClass(string heading, out FlightClass flightClass);
     }
