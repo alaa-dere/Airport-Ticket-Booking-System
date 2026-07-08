@@ -1,7 +1,9 @@
-namespace TASK2.File_Storage.Parser;
-public interface IParser
+namespace TASK2.File_Storage.Parser
 {
- public  string[] ParseLine(string line);  
- public string ToLine(params object?[] values);  
-  public bool IsValidSimpleValue(string value);
+    public interface IParser
+    {
+        public  string[] ParseLine(string line);  
+        public string ToLine(params object?[] values);  
+        public bool IsValidSimpleValue(string value);
+    }
 }
