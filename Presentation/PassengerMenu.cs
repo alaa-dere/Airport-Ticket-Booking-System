@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using TASK2.Services.Passengers;
 using TASK2.Models;
 using TASK2.Presentation.Readers;
@@ -112,9 +114,19 @@ namespace TASK2.Presentation
             if (!_inputReader.TryReadRequiredFlightClass("\nSelect Class:", out FlightClass selectedClass))
                 return;
 
-            bool success = BookFlightForPassenger(flightId, email, name, phone, selectedClass);
+            try
+            {
+                BookFlightForPassenger(flightId, email, name, phone, selectedClass);
+                Console.WriteLine("\nBooking completed successfully!");
+            }
+            catch (Exception exception) when (
+                exception is ValidationException ||
+                exception is KeyNotFoundException ||
+                exception is InvalidOperationException)
+            {
+                Console.WriteLine($"\nBooking failed. {exception.Message}");
+            }
 
-            DisplayBookingResult(success);
             _renderer.WaitForReturn();
         }
 
@@ -190,7 +202,7 @@ namespace TASK2.Presentation
             return false;
         }
 
-        private bool BookFlightForPassenger(
+        private Booking BookFlightForPassenger(
             int flightId,
             PassengerEmail email,
             string name,
@@ -205,13 +217,6 @@ namespace TASK2.Presentation
                 PassengerPhone = phone,
                 SelectedClass = selectedClass
             });
-        }
-
-        private void DisplayBookingResult(bool success)
-        {
-            Console.WriteLine(success
-                ? "\nBooking completed successfully!"
-                : "\nBooking failed. Flight not found or already booked.");
         }
 
         private IReadOnlyCollection<Booking> DisplayBookingsAvailableForModification(PassengerEmail email)

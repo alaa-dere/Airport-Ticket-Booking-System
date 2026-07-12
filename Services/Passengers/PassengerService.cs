@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq; 
 using TASK2.Extensions;
 using TASK2.Services.Flights;
@@ -25,7 +26,7 @@ namespace TASK2.Services.Passengers
             return _flightService.SearchFlights(filter);
         }
 
-        public bool Book(BookingRequest bookingRequest)
+        public Booking Book(BookingRequest bookingRequest)
         {
             if (string.IsNullOrWhiteSpace(bookingRequest.PassengerEmail) ||
                 string.IsNullOrWhiteSpace(bookingRequest.PassengerName) ||
@@ -34,14 +35,14 @@ namespace TASK2.Services.Passengers
                 !bookingRequest.PassengerName.IsValidSimpleValue() ||
                 !bookingRequest.PassengerPhone.IsValidSimpleValue())
             {
-                return false;
+                throw new ValidationException("Passenger email, name, and phone are required and must not contain commas or new lines.");
             }
 
             var flight = _flightService.GetAll().FirstOrDefault(f => f.Id == bookingRequest.FlightId);
             
             if (flight == null)
             {
-                return false;
+                throw new KeyNotFoundException("Flight not found.");
             }
 
             var alreadyBooked = _bookingService.GetAll().Any(b =>
@@ -50,7 +51,7 @@ namespace TASK2.Services.Passengers
 
             if (alreadyBooked)
             {
-                return false;
+                throw new InvalidOperationException("Passenger already booked this flight.");
             }
 
             decimal finalPrice = flight.GetPriceForClass(bookingRequest.SelectedClass);
@@ -69,7 +70,7 @@ namespace TASK2.Services.Passengers
             };
 
             _bookingService.Add(newBooking);
-            return true;
+            return newBooking;
         }
 
         public bool Cancel(int bookingId, string passengerEmail)
