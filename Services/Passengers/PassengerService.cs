@@ -84,29 +84,29 @@ namespace TASK2.Services.Passengers
             return true;
         }
        
-        public bool Modify(int bookingId, string passengerEmail, int newFlightId, FlightClass newClass)
+        public bool Modify(ModifyBookingRequest modifyBookingRequest)
         {
-        var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+        var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == modifyBookingRequest.BookingId && b.Passenger.Email!.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
             
             if (booking == null)
                 return false;
 
-            var flight = _flightService.GetAll().FirstOrDefault(f => f.Id == newFlightId);
+            var flight = _flightService.GetAll().FirstOrDefault(f => f.Id == modifyBookingRequest.NewFlightId);
             
             if (flight == null)
                 return false;
 
             var alreadyBooked = _bookingService.GetAll().Any(b =>
-                b.Id != bookingId &&
-                b.FlightId == newFlightId &&
-                b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+                b.Id != modifyBookingRequest.BookingId &&
+                b.FlightId == modifyBookingRequest.NewFlightId &&
+                b.Passenger.Email!.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
 
             if (alreadyBooked)
                 return false;
 
-            booking.FlightId = newFlightId;
-            booking.SelectedClass = newClass;
-            booking.PricePaid = flight.GetPriceForClass(newClass);
+            booking.FlightId = modifyBookingRequest.NewFlightId;
+            booking.SelectedClass = modifyBookingRequest.NewClass;
+            booking.PricePaid = flight.GetPriceForClass(modifyBookingRequest.NewClass);
             
             _bookingService.Update(booking);
             return true;

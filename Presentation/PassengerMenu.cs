@@ -238,12 +238,13 @@ namespace TASK2.Presentation
             int newFlightId,
             FlightClass newClass)
         {
-            return _passengerService.Modify(
-                bookingId,
-                email.Value,
-                newFlightId,
-                newClass
-            );
+            return _passengerService.Modify(new ModifyBookingRequest
+            {
+                BookingId = bookingId,
+                PassengerEmail = email.Value,
+                NewFlightId = newFlightId,
+                NewClass = newClass
+            });
         }
 
         private void DisplayModificationResult(bool success)
