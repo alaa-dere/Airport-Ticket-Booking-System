@@ -17,7 +17,8 @@ class Program
     {
         IConsoleReader consoleReader = new ConsoleReader();
         IUserRepository userRepository = new UserRepository();
-        FlightRepository flightBookingRepository = new FlightRepository();
+        IBookingRepository bookingStorageRepository = new BookingRepository();
+        FlightRepository flightBookingRepository = new FlightRepository(bookingStorageRepository);
         IFlightRepository flightRepository = flightBookingRepository;
         IBookingRepository bookingRepository = flightBookingRepository;
         IAuthService authService = new AuthService(userRepository);

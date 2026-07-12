@@ -3,26 +3,23 @@ using System.Collections.Generic;
 using System.IO;
 using System.Globalization;
 using System.Linq;
-using TASK2.Models;
-
-namespace TASK2.File_Storage.Flights;
 using TASK2.File_Storage.Bookings;
+using TASK2.Models;
 using TASK2.File_Storage.Parser;
 
+namespace TASK2.File_Storage.Flights;
 
 public class FlightRepository : IFlightRepository, IBookingRepository
 {
     private static readonly string FlightsFilePath = StoragePath.Resolve(AppConstants.FlightsFileName);
-    private static readonly string BookingsFilePath = StoragePath.Resolve(AppConstants.BookingsFileName);
     private static readonly IParser FlightsParser = ParserFactory.GetParser(Path.GetExtension(FlightsFilePath).TrimStart('.'));
-    private static readonly IParser BookingsParser = ParserFactory.GetParser(Path.GetExtension(BookingsFilePath).TrimStart('.'));
+    private readonly IBookingRepository _bookingRepository;
     private readonly List<Flight> _flights;
-    private readonly List<Booking> _bookings;
 
-    public FlightRepository()
+    public FlightRepository(IBookingRepository bookingRepository)
     {
+        _bookingRepository = bookingRepository;
         _flights = LoadFlightsFromFile();
-        _bookings = LoadBookingsFromFile();
     }
 
     public IReadOnlyCollection<Flight> GetAll()
@@ -120,105 +117,45 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         
         File.WriteAllLines(FlightsFilePath, lines);
     }
-    
-     public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
-        {
-            return _flights.Where(f =>
-                (string.IsNullOrEmpty(filter.DepartureCountry) || f.DepartureCountry?.Equals(filter.DepartureCountry, StringComparison.OrdinalIgnoreCase) == true) &&
-                (string.IsNullOrEmpty(filter.DestinationCountry) || f.DestinationCountry?.Equals(filter.DestinationCountry, StringComparison.OrdinalIgnoreCase) == true) &&
-                (string.IsNullOrEmpty(filter.DepartureAirport) || f.DepartureAirport?.Equals(filter.DepartureAirport, StringComparison.OrdinalIgnoreCase) == true) &&
-                (string.IsNullOrEmpty(filter.ArrivalAirport) || f.ArrivalAirport?.Equals(filter.ArrivalAirport, StringComparison.OrdinalIgnoreCase) == true) &&
-                (!filter.DepartureDate.HasValue || f.DepartureTime.Date == filter.DepartureDate.Value.Date) &&
-                (!filter.MaxPrice.HasValue || f.GetPriceForClass(filter.FlightClass ?? FlightClass.Economy) <= filter.MaxPrice.Value)
-            ).ToList();
-        }
-    
-     IReadOnlyCollection<Booking> IBookingRepository.GetAll()
+    public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
     {
-        return _bookings.ToList();
+        return _flights.Where(f =>
+            (string.IsNullOrEmpty(filter.DepartureCountry) || f.DepartureCountry?.Equals(filter.DepartureCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrEmpty(filter.DestinationCountry) || f.DestinationCountry?.Equals(filter.DestinationCountry, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrEmpty(filter.DepartureAirport) || f.DepartureAirport?.Equals(filter.DepartureAirport, StringComparison.OrdinalIgnoreCase) == true) &&
+            (string.IsNullOrEmpty(filter.ArrivalAirport) || f.ArrivalAirport?.Equals(filter.ArrivalAirport, StringComparison.OrdinalIgnoreCase) == true) &&
+            (!filter.DepartureDate.HasValue || f.DepartureTime.Date == filter.DepartureDate.Value.Date) &&
+            (!filter.MaxPrice.HasValue || f.GetPriceForClass(filter.FlightClass ?? FlightClass.Economy) <= filter.MaxPrice.Value)
+        ).ToList();
     }
 
-    private List<Booking> LoadBookingsFromFile()
+    IReadOnlyCollection<Booking> IBookingRepository.GetAll()
     {
-        var bookings = new List<Booking>();
-
-        if (!File.Exists(BookingsFilePath) || File.ReadLines(BookingsFilePath).Count() <= 1)
-            return bookings;
-
-        var lines = File.ReadAllLines(BookingsFilePath);
-        lines = lines.Skip(1).ToArray();
-
-        foreach (var line in lines)
-        {
-            if (string.IsNullOrWhiteSpace(line)) continue;
-
-            var columns = BookingsParser.ParseLine(line);
-
-            if (columns.Length == 7 &&
-                int.TryParse(columns[0], out var id) &&
-                int.TryParse(columns[1], out var flightId) &&
-                Enum.TryParse(columns[5], out FlightClass selectedClass) &&
-                decimal.TryParse(columns[6], NumberStyles.Number, CultureInfo.InvariantCulture, out var pricePaid))
-            {
-                var booking = new Booking
-                {
-                    Id = id,
-                    FlightId = flightId,
-                    Passenger = new Passenger
-                    {
-                        Email = columns[2],
-                        Name = columns[3],
-                        Phone = columns[4]
-                    },
-                    SelectedClass = selectedClass,
-                    PricePaid = pricePaid
-                };
-                bookings.Add(booking);
-            }
-        }
-        return bookings;
+        return _bookingRepository.GetAll();
     }
 
     public void Add(Booking booking)
     {
-        var maxId = _bookings.Count > 0 ? _bookings.Max(b => b.Id) : 0;
-        booking.Id = maxId + 1;
-
-        _bookings.Add(booking);
-        WriteBookingsToFile(_bookings);
+        _bookingRepository.Add(booking);
     }
 
     public void Update(Booking updatedBooking)
     {
-        var existingBooking = _bookings.FirstOrDefault(b => b.Id == updatedBooking.Id);
-        if (existingBooking != null)
-        {
-            existingBooking.FlightId = updatedBooking.FlightId;
-            existingBooking.Passenger = updatedBooking.Passenger;
-            existingBooking.SelectedClass = updatedBooking.SelectedClass;
-            existingBooking.PricePaid = updatedBooking.PricePaid;
-
-            WriteBookingsToFile(_bookings);
-        }
+        _bookingRepository.Update(updatedBooking);
     }
 
     void IBookingRepository.Delete(int id)
     {
-        var bookingToDelete = _bookings.FirstOrDefault(b => b.Id == id);
-        if (bookingToDelete != null)
-        {
-            _bookings.Remove(bookingToDelete);
-            WriteBookingsToFile(_bookings);
-        }
+        _bookingRepository.Delete(id);
     }
 
     public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
     {
-        var allFlights = _flights;
+        var bookings = _bookingRepository.GetAll();
 
-        return _bookings.Where(b =>
+        return bookings.Where(b =>
         {
-            var flight = allFlights.FirstOrDefault(f => f.Id == b.FlightId);
+            var flight = _flights.FirstOrDefault(f => f.Id == b.FlightId);
             if (flight == null)
                 return false;
 
@@ -236,22 +173,6 @@ public class FlightRepository : IFlightRepository, IBookingRepository
 
     void IBookingRepository.SaveAll(ICollection<Booking> bookings)
     {
-        _bookings.Clear();
-        _bookings.AddRange(bookings);
-        WriteBookingsToFile(_bookings);
+        _bookingRepository.SaveAll(bookings);
     }
-
-    private static void WriteBookingsToFile(ICollection<Booking> bookings)
-    {
-        var lines = new List<string> { "Id,FlightId,PassengerEmail,PassengerName,PassengerPhone,SelectedClass,PricePaid" };
-        lines.AddRange(bookings.Select(b => BookingsParser.ToLine(
-            b.Id,
-            b.FlightId,
-            b.Passenger.Email,
-            b.Passenger.Name,
-            b.Passenger.Phone,
-            b.SelectedClass,
-            b.PricePaid.ToString(CultureInfo.InvariantCulture))));
-        File.WriteAllLines(BookingsFilePath, lines);
-    }           
 }
