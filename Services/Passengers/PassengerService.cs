@@ -26,19 +26,19 @@ namespace TASK2.Services.Passengers
             return _flightService.SearchFlights(filter);
         }
 
-        public bool Book(int flightId, string passengerEmail, string passengerName, string passengerPhone, FlightClass selectedClass)
+        public bool Book(BookingRequest bookingRequest)
         {
-            if (string.IsNullOrWhiteSpace(passengerEmail) ||
-                string.IsNullOrWhiteSpace(passengerName) ||
-                string.IsNullOrWhiteSpace(passengerPhone) ||
-                !Parser.IsValidSimpleValue(passengerEmail) ||
-                !Parser.IsValidSimpleValue(passengerName) ||
-                !Parser.IsValidSimpleValue(passengerPhone))
+            if (string.IsNullOrWhiteSpace(bookingRequest.PassengerEmail) ||
+                string.IsNullOrWhiteSpace(bookingRequest.PassengerName) ||
+                string.IsNullOrWhiteSpace(bookingRequest.PassengerPhone) ||
+                !Parser.IsValidSimpleValue(bookingRequest.PassengerEmail) ||
+                !Parser.IsValidSimpleValue(bookingRequest.PassengerName) ||
+                !Parser.IsValidSimpleValue(bookingRequest.PassengerPhone))
             {
                 return false;
             }
 
-            var flight = _flightService.GetAll().FirstOrDefault(f => f.Id == flightId);
+            var flight = _flightService.GetAll().FirstOrDefault(f => f.Id == bookingRequest.FlightId);
             
             if (flight == null)
             {
@@ -46,33 +46,33 @@ namespace TASK2.Services.Passengers
             }
 
             var alreadyBooked = _bookingService.GetAll().Any(b =>
-                b.FlightId == flightId &&
-                b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+                b.FlightId == bookingRequest.FlightId &&
+                b.Passenger.Email!.Equals(bookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
 
             if (alreadyBooked)
             {
                 return false;
             }
 
-            decimal finalPrice = flight.GetPriceForClass(selectedClass);
+            decimal finalPrice = flight.GetPriceForClass(bookingRequest.SelectedClass);
 
             var newBooking = new Booking
             {
-                FlightId = flightId,
+                FlightId = bookingRequest.FlightId,
                 Passenger = new Passenger
                 {
-                    Email = passengerEmail,
-                    Name = passengerName,
-                    Phone = passengerPhone
+                    Email = bookingRequest.PassengerEmail,
+                    Name = bookingRequest.PassengerName,
+                    Phone = bookingRequest.PassengerPhone
                 },
-                SelectedClass = selectedClass,
+                SelectedClass = bookingRequest.SelectedClass,
                 PricePaid = finalPrice
             };
 
             _bookingService.Add(newBooking);
             return true;
         }
-        
+
         public bool Cancel(int bookingId, string passengerEmail)
         {
         var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));

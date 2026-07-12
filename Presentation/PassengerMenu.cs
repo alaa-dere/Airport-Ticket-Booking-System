@@ -197,13 +197,14 @@ namespace TASK2.Presentation
             string phone,
             FlightClass selectedClass)
         {
-            return _passengerService.Book(
-                flightId,
-                email.Value,
-                name,
-                phone,
-                selectedClass
-            );
+            return _passengerService.Book(new BookingRequest
+            {
+                FlightId = flightId,
+                PassengerEmail = email.Value,
+                PassengerName = name,
+                PassengerPhone = phone,
+                SelectedClass = selectedClass
+            });
         }
 
         private void DisplayBookingResult(bool success)
