@@ -4,12 +4,12 @@ namespace TASK2.Presentation.Renderers
 {
     public interface IMenuRenderer
     {
-        void DisplayFilteredBookings(IReadOnlyCollection<Booking> bookings);
-        void DisplayPassengerBookings(IReadOnlyCollection<Booking> bookings);
-        void DisplayPassengerFlights(IReadOnlyCollection<Flight> flights);
-        void DisplayManagerFlights(IReadOnlyCollection<Flight> flights);
-        void DisplayValidationErrors(IReadOnlyCollection<FileValidationError> errors);
-        void DisplayValidationGuide(IReadOnlyCollection<FieldValidationInfo> guide);
-        void WaitForReturn();
+        public void DisplayFilteredBookings(IReadOnlyCollection<Booking> bookings);
+        public void DisplayPassengerBookings(IReadOnlyCollection<Booking> bookings);
+        public void DisplayPassengerFlights(IReadOnlyCollection<Flight> flights);
+        public void DisplayManagerFlights(IReadOnlyCollection<Flight> flights);
+        public void DisplayValidationErrors(IReadOnlyCollection<FileValidationError> errors);
+        public void DisplayValidationGuide(IReadOnlyCollection<FieldValidationInfo> guide);
+        public void WaitForReturn();
     }
 }

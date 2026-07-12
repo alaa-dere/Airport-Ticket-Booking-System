@@ -3,10 +3,10 @@ namespace TASK2.Presentation.Readers
 {
     public interface IConsoleReader
     {
-        string? ReadOptionalText();
-        int? ReadOptionalInt();
-        decimal? ReadOptionalDecimal();
-        DateTime? ReadOptionalDate();
-        FlightClass? ReadOptionalFlightClass();
+       public string? ReadOptionalText();
+        public int? ReadOptionalInt();
+        public decimal? ReadOptionalDecimal();
+        public DateTime? ReadOptionalDate();
+        public FlightClass? ReadOptionalFlightClass();
     }
 }

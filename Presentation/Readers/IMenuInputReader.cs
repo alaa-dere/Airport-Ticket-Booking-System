@@ -4,15 +4,15 @@ namespace TASK2.Presentation.Readers
 {
     public interface IMenuInputReader
     {
-        BookingFilter ReadBookingFilter();
-        FlightFilter ReadFlightFilter();
-        string ReadRequiredSimpleText(string message);
-        bool TryReadFlightIdFromSearchResults(
+        public BookingFilter ReadBookingFilter();
+        public FlightFilter ReadFlightFilter();
+        public string ReadRequiredSimpleText(string message);
+        public bool TryReadFlightIdFromSearchResults(
             IReadOnlyCollection<Flight> flights,
             string prompt,
             out int flightId
             );
-        bool TryReadBookingIdToModify(out int bookingId);
-        bool TryReadRequiredFlightClass(string heading, out FlightClass flightClass);
+        public bool TryReadBookingIdToModify(out int bookingId);
+        public bool TryReadRequiredFlightClass(string heading, out FlightClass flightClass);
     }
 }

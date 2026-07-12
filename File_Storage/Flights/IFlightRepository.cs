@@ -4,7 +4,7 @@ namespace TASK2.File_Storage.Flights
 {
     public interface IFlightRepository
     {
-        IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter);
+        public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter);
         public IReadOnlyCollection<Flight> GetAll();
         public void Add(ICollection<Flight> newFlights);
         public void Update(Flight updatedFlight);

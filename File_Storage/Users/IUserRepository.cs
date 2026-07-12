@@ -4,8 +4,8 @@ namespace TASK2.File_Storage.Users
 {
     public interface IUserRepository
     {
-        IReadOnlyCollection<User> GetAll();
-        User? GetUserByEmail(string email);
-        void Add(User user);
+        public IReadOnlyCollection<User> GetAll();
+        public User? GetUserByEmail(string email);
+        public void Add(User user);
     }
 }

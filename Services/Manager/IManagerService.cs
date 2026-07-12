@@ -4,11 +4,11 @@ namespace TASK2.Services.Manager
 {
     public interface IManagerService
     {
-        (bool IsSuccess, IReadOnlyCollection<FileValidationError> Errors) BatchUploadFlights(string filePath);
-        IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter);
-        IReadOnlyCollection<FieldValidationInfo> GetFlightValidationDetails();
-        IReadOnlyCollection<Flight> GetAll();
-        IReadOnlyCollection<FileValidationError> ValidateImportedFlightData(string filePath);
+        public (bool IsSuccess, IReadOnlyCollection<FileValidationError> Errors) BatchUploadFlights(string filePath);
+        public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter);
+        public IReadOnlyCollection<FieldValidationInfo> GetFlightValidationDetails();
+        public IReadOnlyCollection<Flight> GetAll();
+        public IReadOnlyCollection<FileValidationError> ValidateImportedFlightData(string filePath);
             
     }
 }
