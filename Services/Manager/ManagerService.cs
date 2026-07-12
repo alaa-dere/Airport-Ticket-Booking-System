@@ -53,21 +53,21 @@ namespace TASK2.Services.Manager
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                var (isValid, rowErrors, validFlight) = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
+                var result = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
 
-                if (!isValid)
+                if (!result.IsValid)
                 {
-                    errors.AddRange(rowErrors);
+                    errors.AddRange(result.Errors);
                 }
-                else if (validFlight != null)
+                else if (result.ValidFlight != null)
                 {
-                    if (!importedFlightIds.Add(validFlight.Id))
+                    if (!importedFlightIds.Add(result.ValidFlight.Id))
                     {
-                        AddDuplicateFlightIdError(errors, i + 1, validFlight.Id);
+                        AddDuplicateFlightIdError(errors, i + 1, result.ValidFlight.Id);
                         continue;
                     }
 
-                    validFlights.Add(validFlight);
+                    validFlights.Add(result.ValidFlight);
                 }
             }
 

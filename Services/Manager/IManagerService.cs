@@ -8,7 +8,6 @@ namespace TASK2.Services.Manager
         public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter);
         public IReadOnlyCollection<FieldValidationInfo> GetFlightValidationDetails();
         public IReadOnlyCollection<Flight> GetAll();
-        public IReadOnlyCollection<FileValidationError> ValidateImportedFlightData(string filePath);
-            
+        public IReadOnlyCollection<FileValidationError> ValidateImportedFlightData(string filePath);           
     }
 }

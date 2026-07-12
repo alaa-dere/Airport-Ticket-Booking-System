@@ -4,7 +4,7 @@ namespace TASK2.Services.Validation
 {
     public interface IValidationService
     {
-        public (bool IsValid, IReadOnlyCollection<FileValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(
+        public FlightRowValidationResult ValidateFlightRow(
             string csvLine,
             int rowNumber,
             IReadOnlyCollection<Flight>? existingFlights = null

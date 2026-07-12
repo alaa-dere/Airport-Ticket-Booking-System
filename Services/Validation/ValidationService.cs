@@ -18,7 +18,7 @@ namespace TASK2.Services.Validation;
             _flightRepo = flightRepo;
         }
 
-        public (bool IsValid, IReadOnlyCollection<FileValidationError> Errors, Flight? ValidFlight) ValidateFlightRow(
+        public FlightRowValidationResult ValidateFlightRow(
             string csvLine,
             int rowNumber,
             IReadOnlyCollection<Flight>? existingFlights = null)
@@ -34,7 +34,12 @@ namespace TASK2.Services.Validation;
                     ErrorMessage = "Row is empty."
                 });
 
-                return (false, errors, null);
+                return new FlightRowValidationResult
+                {
+                    IsValid = false,
+                    Errors = errors,
+                    ValidFlight = null
+                };
             }
 
             var columns = Parser.ParseLine(csvLine);
@@ -48,7 +53,12 @@ namespace TASK2.Services.Validation;
                     ErrorMessage = "Invalid row format. Expected 7 columns."
                 });
 
-                return (false, errors, null);
+                return new FlightRowValidationResult
+                {
+                    IsValid = false,
+                    Errors = errors,
+                    ValidFlight = null
+                };
             }
 
             string idStr = columns[0].Trim();
@@ -128,10 +138,20 @@ namespace TASK2.Services.Validation;
 
             if (errors.Count > 0)
             {
-                return (false, errors, null);
+                return new FlightRowValidationResult
+                {
+                    IsValid = false,
+                    Errors = errors,
+                    ValidFlight = null
+                };
             }
 
-            return (true, errors, flight);
+            return new FlightRowValidationResult
+            {
+                IsValid = true,
+                Errors = errors,
+                ValidFlight = flight
+            };
         }
 
         private static void AddModelValidationErrors(Flight flight, int rowNumber, ICollection<FileValidationError> errors)
