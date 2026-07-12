@@ -2,7 +2,7 @@ namespace TASK2.Models
 {
     public enum UserRole
     {
-        Passenger,
-        Manager
+        Passenger=1,
+        Manager=2
     }
 }
