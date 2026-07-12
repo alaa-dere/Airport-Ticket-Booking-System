@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Security;
 using TASK2.File_Storage.Users;
 using TASK2.Extensions;
 using TASK2.Models;
@@ -18,8 +19,11 @@ namespace TASK2.Services.Auth
         {
             var user = _userRepository.GetUserByEmail(email);
 
-            if (user == null || user.Password != password)
-                return null;
+            if (user == null)
+                throw new KeyNotFoundException("User not found.");
+
+            else if (user.Password != password)
+                throw new UnauthorizedAccessException("Invalid password.");
 
             return user;
         }
