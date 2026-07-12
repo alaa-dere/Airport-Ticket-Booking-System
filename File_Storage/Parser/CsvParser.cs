@@ -1,3 +1,5 @@
+using TASK2.Extensions;
+
 namespace TASK2.File_Storage.Parser;
 public class CsvParser : IParser
 {
@@ -12,19 +14,12 @@ public class CsvParser : IParser
         {
             var text = value?.ToString() ?? string.Empty;
 
-            if (!IsValidSimpleValue(text))
+            if (!text.IsValidSimpleValue())
             {
                 throw new ArgumentException("CSV values cannot contain commas or new lines.");
             }
 
             return text;
         }));
-    }
-    
-    public bool IsValidSimpleValue(string value)
-    {
-        return !value.Contains(',') &&
-            !value.Contains('\n') &&
-            !value.Contains('\r');
     }
 }

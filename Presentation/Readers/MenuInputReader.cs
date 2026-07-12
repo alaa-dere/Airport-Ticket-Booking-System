@@ -1,11 +1,10 @@
-using TASK2.File_Storage.Parser;
+using TASK2.Extensions;
 using TASK2.Models;
 
 namespace TASK2.Presentation.Readers;
 
 public class MenuInputReader : IMenuInputReader
 {
-    private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
     private readonly IConsoleReader _consoleReader;
 
     public MenuInputReader(IConsoleReader consoleReader)
@@ -104,7 +103,7 @@ public class MenuInputReader : IMenuInputReader
 
             input = input.Trim();
 
-            if (!Parser.IsValidSimpleValue(input))
+            if (!input.IsValidSimpleValue())
             {
                 Console.WriteLine("This field cannot contain commas.");
                 continue;

@@ -1,6 +1,5 @@
-using TASK2.File_Storage.Parser;
 using TASK2.File_Storage.Users;
-
+using TASK2.Extensions;
 using TASK2.Models;
 
 namespace TASK2.Services.Auth
@@ -8,7 +7,6 @@ namespace TASK2.Services.Auth
     public class AuthService : IAuthService
     {
         private readonly IUserRepository _userRepository;
-        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public AuthService(IUserRepository userRepository)
         {
@@ -30,9 +28,9 @@ namespace TASK2.Services.Auth
             if (string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(email) ||
                 string.IsNullOrWhiteSpace(password) ||
-                !Parser.IsValidSimpleValue(name) ||
-                !Parser.IsValidSimpleValue(email) ||
-                !Parser.IsValidSimpleValue(password))
+                !name.IsValidSimpleValue() ||
+                !email.IsValidSimpleValue() ||
+                !password.IsValidSimpleValue())
             {
                 return false;
             }

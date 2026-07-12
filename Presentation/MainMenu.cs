@@ -1,5 +1,5 @@
 using System;
-using TASK2.File_Storage.Parser;
+using TASK2.Extensions;
 using TASK2.Models;
 using TASK2.Services.Auth;
 using TASK2.Services.Manager;
@@ -14,7 +14,6 @@ namespace TASK2.Presentation
         private readonly IManagerService _managerService;
         private readonly IPassengerService _passengerService;
         private readonly IConsoleReader _consoleReader;
-        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public MainMenu(
             IAuthService authService,
@@ -135,9 +134,9 @@ namespace TASK2.Presentation
                 return;
             }
 
-            if (!Parser.IsValidSimpleValue(name) ||
-                !Parser.IsValidSimpleValue(email) ||
-                !Parser.IsValidSimpleValue(password))
+            if (!name.IsValidSimpleValue() ||
+                !email.IsValidSimpleValue() ||
+                !password.IsValidSimpleValue())
             {
                 Console.WriteLine("Name, email, and password cannot contain commas.");
                 Console.ReadLine();

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq; 
-using TASK2.File_Storage.Parser;
+using TASK2.Extensions;
 using TASK2.Services.Flights;
 using TASK2.Services.Bookings;
 using TASK2.Models;
@@ -12,7 +12,6 @@ namespace TASK2.Services.Passengers
     {
         private readonly IFlightService _flightService;
         private readonly IBookingService _bookingService;
-        private static readonly IParser Parser = ParserFactory.GetParser(ParserFactory.CsvParserType);
 
         public PassengerService(IFlightService flightService,
             IBookingService bookingService)
@@ -31,9 +30,9 @@ namespace TASK2.Services.Passengers
             if (string.IsNullOrWhiteSpace(bookingRequest.PassengerEmail) ||
                 string.IsNullOrWhiteSpace(bookingRequest.PassengerName) ||
                 string.IsNullOrWhiteSpace(bookingRequest.PassengerPhone) ||
-                !Parser.IsValidSimpleValue(bookingRequest.PassengerEmail) ||
-                !Parser.IsValidSimpleValue(bookingRequest.PassengerName) ||
-                !Parser.IsValidSimpleValue(bookingRequest.PassengerPhone))
+                !bookingRequest.PassengerEmail.IsValidSimpleValue() ||
+                !bookingRequest.PassengerName.IsValidSimpleValue() ||
+                !bookingRequest.PassengerPhone.IsValidSimpleValue())
             {
                 return false;
             }
