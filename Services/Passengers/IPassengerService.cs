@@ -5,7 +5,7 @@ namespace TASK2.Services.Passengers
     {
         public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter);
         public Booking Book(BookingRequest bookingRequest);
-        public bool Cancel(int bookingId, string passengerEmail);
+        public void Cancel(int bookingId, string passengerEmail);
         public bool Modify(ModifyBookingRequest modifyBookingRequest);
         public IReadOnlyCollection<Booking> GetMyBookings(string passengerEmail);
     }

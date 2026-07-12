@@ -88,11 +88,11 @@ public class FlightRepository : IFlightRepository, IBookingRepository
     public void Delete(int id)
     {
         var flightToDelete = _flights.FirstOrDefault(f => f.Id == id);
-        if (flightToDelete != null)
-        {
-            _flights.Remove(flightToDelete);
-            WriteFlightsToFile(_flights);
-        }
+        if (flightToDelete == null)
+            throw new KeyNotFoundException("Flight not found.");
+
+        _flights.Remove(flightToDelete);
+        WriteFlightsToFile(_flights);
     }
 
     public void SaveAll(ICollection<Flight> flights)

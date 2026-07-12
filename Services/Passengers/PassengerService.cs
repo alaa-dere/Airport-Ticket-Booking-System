@@ -73,15 +73,14 @@ namespace TASK2.Services.Passengers
             return newBooking;
         }
 
-        public bool Cancel(int bookingId, string passengerEmail)
+        public void Cancel(int bookingId, string passengerEmail)
         {
-        var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
+            var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
             
             if (booking == null)
-                return false;
+                throw new KeyNotFoundException("Booking not found.");
 
             _bookingService.Delete(bookingId);
-            return true;
         }
        
         public bool Modify(ModifyBookingRequest modifyBookingRequest)
