@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TASK2.File_Storage.Users;
 using TASK2.Extensions;
 using TASK2.Models;
@@ -23,7 +24,7 @@ namespace TASK2.Services.Auth
             return user;
         }
 
-        public bool RegisterPassenger(string name, string email, string password)
+        public User RegisterPassenger(string name, string email, string password)
         {
             if (string.IsNullOrWhiteSpace(name) ||
                 string.IsNullOrWhiteSpace(email) ||
@@ -32,21 +33,25 @@ namespace TASK2.Services.Auth
                 !email.IsValidSimpleValue() ||
                 !password.IsValidSimpleValue())
             {
-                return false;
+                throw new ValidationException("Name, email, and password are required and must not contain commas or new lines.");
             }
 
-            if (_userRepository.GetUserByEmail(email) != null)
-                return false;
+            name = name.Trim();
+            email = email.Trim();
 
-            _userRepository.Add(new User
+            if (_userRepository.GetUserByEmail(email) != null)
+                throw new ValidationException("Email is already registered.");
+
+            var user = new User
             {
                 Name = name,
                 Email = email,
                 Password = password,
                 Role = UserRole.Passenger
-            });
+            };
 
-            return true;
+            _userRepository.Add(user);
+            return user;
         }
     }
 }

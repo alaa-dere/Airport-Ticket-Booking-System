@@ -1,5 +1,5 @@
 using System;
-using TASK2.Extensions;
+using System.ComponentModel.DataAnnotations;
 using TASK2.Models;
 using TASK2.Services.Auth;
 using TASK2.Services.Manager;
@@ -125,29 +125,18 @@ namespace TASK2.Presentation
             Console.Write("Password: ");
             string? password = Console.ReadLine();
 
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(email) ||
-                string.IsNullOrWhiteSpace(password))
+            try
             {
-                Console.WriteLine("Name, email, and password are required.");
+                _authService.RegisterPassenger(name ?? string.Empty, email ?? string.Empty, password ?? string.Empty);
+            }
+            catch (ValidationException exception)
+            {
+                Console.WriteLine(exception.Message);
                 Console.ReadLine();
                 return;
             }
 
-            if (!name.IsValidSimpleValue() ||
-                !email.IsValidSimpleValue() ||
-                !password.IsValidSimpleValue())
-            {
-                Console.WriteLine("Name, email, and password cannot contain commas.");
-                Console.ReadLine();
-                return;
-            }
-
-            var isRegistered = _authService.RegisterPassenger(name.Trim(), email.Trim(), password);
-
-            Console.WriteLine(isRegistered
-                ? "Passenger registered successfully. You can login now."
-                : "Registration failed. Email is already registered.");
+            Console.WriteLine("Passenger registered successfully. You can login now.");
 
             Console.ReadLine();
         }
