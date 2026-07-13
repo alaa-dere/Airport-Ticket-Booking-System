@@ -6,8 +6,8 @@ namespace TASK2.Services.Bookings
     {
         public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter);
         public IReadOnlyCollection<Booking> GetAll();
-        public void Add(Booking booking);
-        public void Update(Booking booking);
+        public Booking Add(Booking booking);
+        public Booking Update(Booking booking);
         public void Delete(int id);
     }
 }

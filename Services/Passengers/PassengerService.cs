@@ -69,8 +69,7 @@ namespace TASK2.Services.Passengers
                 PricePaid = finalPrice
             };
 
-            _bookingService.Add(newBooking);
-            return newBooking;
+            return _bookingService.Add(newBooking);
         }
 
         public void Cancel(int bookingId, string passengerEmail)

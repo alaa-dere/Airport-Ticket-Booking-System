@@ -6,8 +6,8 @@ namespace TASK2.Services.Flights
     {
         public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter);
         public IReadOnlyCollection<Flight> GetAll();
-        public void Add(ICollection<Flight> flights);
-        public void Update(Flight flight);
+        public IReadOnlyCollection<Flight> Add(ICollection<Flight> flights);
+        public Flight Update(Flight flight);
         public void Delete(int id);
     }
 }
