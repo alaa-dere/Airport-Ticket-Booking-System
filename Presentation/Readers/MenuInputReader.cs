@@ -12,6 +12,7 @@ public class MenuInputReader : IMenuInputReader
         _consoleReader = consoleReader;
     }
 
+    /// <inheritdoc />
     public BookingFilter ReadBookingFilter()
     {
         Console.Write("Enter Passenger Email (or press Enter to skip): ");
@@ -54,6 +55,7 @@ public class MenuInputReader : IMenuInputReader
         };
     }
 
+    /// <inheritdoc />
     public FlightFilter ReadFlightFilter()
     {
         Console.Write("Enter Departure Country (or press Enter to skip): ");
@@ -88,6 +90,7 @@ public class MenuInputReader : IMenuInputReader
         };
     }
 
+    /// <inheritdoc />
     public string ReadRequiredSimpleText(string message)
     {
         while (true)
@@ -113,6 +116,7 @@ public class MenuInputReader : IMenuInputReader
         }
     }
 
+    /// <inheritdoc />
     public bool TryReadFlightIdFromSearchResults(
         IReadOnlyCollection<Flight> flights,
         string prompt,
@@ -138,6 +142,7 @@ public class MenuInputReader : IMenuInputReader
         return true;
     }
 
+    /// <inheritdoc />
     public bool TryReadBookingIdToModify(out int bookingId)
     {
         Console.Write("\nEnter Booking ID to modify: ");
@@ -149,6 +154,7 @@ public class MenuInputReader : IMenuInputReader
         return false;
     }
 
+    /// <inheritdoc />
     public bool TryReadRequiredFlightClass(string heading, out FlightClass flightClass)
     {
         Console.WriteLine(heading);

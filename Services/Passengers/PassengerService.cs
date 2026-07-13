@@ -21,11 +21,13 @@ namespace TASK2.Services.Passengers
             _bookingService = bookingService;
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
         {
             return _flightService.SearchFlights(filter);
         }
 
+        /// <inheritdoc />
         public Booking Book(BookingRequest bookingRequest)
         {
             if (string.IsNullOrWhiteSpace(bookingRequest.PassengerEmail) ||
@@ -70,11 +72,13 @@ namespace TASK2.Services.Passengers
             return _bookingService.Add(newBooking);
         }
 
+        /// <inheritdoc />
         public void Cancel(int bookingId, string passengerEmail)
         {
             _bookingService.Delete(bookingId);
         }
        
+        /// <inheritdoc />
         public bool Modify(ModifyBookingRequest modifyBookingRequest)
         {
         var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == modifyBookingRequest.BookingId && b.Passenger.Email.Value.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
@@ -103,6 +107,7 @@ namespace TASK2.Services.Passengers
             return true;
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Booking> GetMyBookings(string passengerEmail)
         {
             return _bookingService.GetAll()

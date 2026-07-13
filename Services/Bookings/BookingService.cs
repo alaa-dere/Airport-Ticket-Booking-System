@@ -14,11 +14,13 @@ namespace TASK2.Services.Bookings
             _bookingRepository = bookingRepository;
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Booking> GetAll()
         {
             return _bookingRepository.GetAll();
         }
 
+        /// <inheritdoc />
         public Booking Add(Booking booking)
         {
             ValidateBooking(booking, validateId: false);
@@ -26,6 +28,7 @@ namespace TASK2.Services.Bookings
             return booking;
         }
 
+        /// <inheritdoc />
         public Booking Update(Booking booking)
         {
             ValidateBooking(booking, validateId: true);
@@ -33,10 +36,12 @@ namespace TASK2.Services.Bookings
             return booking;
         }
 
+        /// <inheritdoc />
         public void Delete(int id)
         {
             _bookingRepository.Delete(id);
         }
+        /// <inheritdoc />
         public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
         {
             return _bookingRepository.FilterBookings(filter);

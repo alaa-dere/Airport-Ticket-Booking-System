@@ -15,6 +15,7 @@ namespace TASK2.Services.Auth
             _userRepository = userRepository;
         }
 
+        /// <inheritdoc />
         public User? Login(string email, string password)
         {
             var user = _userRepository.GetUserByEmail(email);
@@ -28,6 +29,7 @@ namespace TASK2.Services.Auth
             return user;
         }
 
+        /// <inheritdoc />
         public User RegisterPassenger(string name, string email, string password)
         {
             if (string.IsNullOrWhiteSpace(name) ||

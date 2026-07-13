@@ -22,6 +22,7 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         _flights = LoadFlightsFromFile();
     }
 
+    /// <inheritdoc />
     public IReadOnlyCollection<Flight> GetAll()
     {
         return _flights.ToList();
@@ -64,12 +65,14 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         return flights;
     }
 
+    /// <inheritdoc />
     public void Add(ICollection<Flight> newFlights)
     {
         _flights.AddRange(newFlights);
         WriteFlightsToFile(_flights);
     }
 
+    /// <inheritdoc />
     public void Update(Flight updatedFlight)
     {
         var existingFlight = _flights.FirstOrDefault(f => f.Id == updatedFlight.Id);
@@ -85,6 +88,7 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         }
     }
 
+    /// <inheritdoc />
     public void Delete(int id)
     {
         var flightToDelete = _flights.FirstOrDefault(f => f.Id == id);
@@ -95,6 +99,7 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         WriteFlightsToFile(_flights);
     }
 
+    /// <inheritdoc />
     public void SaveAll(ICollection<Flight> flights)
     {
         _flights.Clear();
@@ -117,6 +122,8 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         
         File.WriteAllLines(FlightsFilePath, lines);
     }
+
+    /// <inheritdoc />
     public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
     {
         return _flights.Where(f =>
@@ -129,26 +136,31 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         ).ToList();
     }
 
+    /// <inheritdoc />
     IReadOnlyCollection<Booking> IBookingRepository.GetAll()
     {
         return _bookingRepository.GetAll();
     }
 
+    /// <inheritdoc />
     public void Add(Booking booking)
     {
         _bookingRepository.Add(booking);
     }
 
+    /// <inheritdoc />
     public void Update(Booking updatedBooking)
     {
         _bookingRepository.Update(updatedBooking);
     }
 
+    /// <inheritdoc />
     void IBookingRepository.Delete(int id)
     {
         _bookingRepository.Delete(id);
     }
 
+    /// <inheritdoc />
     public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
     {
         var bookings = _bookingRepository.GetAll();
@@ -171,6 +183,7 @@ public class FlightRepository : IFlightRepository, IBookingRepository
         }).ToList();
     }
 
+    /// <inheritdoc />
     void IBookingRepository.SaveAll(ICollection<Booking> bookings)
     {
         _bookingRepository.SaveAll(bookings);

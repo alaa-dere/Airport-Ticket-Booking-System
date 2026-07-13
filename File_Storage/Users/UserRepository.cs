@@ -15,11 +15,13 @@ public class UserRepository : IUserRepository
         _users = LoadUsersFromFile();
     }
 
+    /// <inheritdoc />
     public IReadOnlyCollection<User> GetAll()
     {
         return _users.ToList();
     }
 
+    /// <inheritdoc />
     public User? GetUserByEmail(string email)
     {
         return _users.FirstOrDefault(user =>
@@ -56,6 +58,7 @@ public class UserRepository : IUserRepository
         return users;
     }
 
+    /// <inheritdoc />
     public void Add(User user)
     {
         var maxId = _users.Count > 0 ? _users.Max(u => u.Id) : 0;

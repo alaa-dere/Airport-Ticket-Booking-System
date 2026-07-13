@@ -19,11 +19,13 @@ public class BookingRepository : IBookingRepository
         _bookings = LoadBookingsFromFile();
     }
 
+    /// <inheritdoc />
     public IReadOnlyCollection<Booking> GetAll()
     {
         return _bookings.ToList();
     }
 
+    /// <inheritdoc />
     public void Add(Booking booking)
     {
         var maxId = _bookings.Count > 0 ? _bookings.Max(b => b.Id) : 0;
@@ -33,6 +35,7 @@ public class BookingRepository : IBookingRepository
         WriteBookingsToFile(_bookings);
     }
 
+    /// <inheritdoc />
     public void Update(Booking updatedBooking)
     {
         var existingBooking = _bookings.FirstOrDefault(b => b.Id == updatedBooking.Id);
@@ -47,6 +50,7 @@ public class BookingRepository : IBookingRepository
         WriteBookingsToFile(_bookings);
     }
 
+    /// <inheritdoc />
     public void Delete(int id)
     {
         var bookingToDelete = _bookings.FirstOrDefault(b => b.Id == id);
@@ -57,6 +61,7 @@ public class BookingRepository : IBookingRepository
         WriteBookingsToFile(_bookings);
     }
 
+    /// <inheritdoc />
     public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
     {
         return _bookings.Where(b =>
@@ -67,6 +72,7 @@ public class BookingRepository : IBookingRepository
         ).ToList();
     }
 
+    /// <inheritdoc />
     public void SaveAll(ICollection<Booking> bookings)
     {
         _bookings.Clear();

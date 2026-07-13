@@ -4,6 +4,7 @@ namespace TASK2.Presentation.Renderers;
 
 public class MenuRenderer : IMenuRenderer
 {
+    /// <inheritdoc />
     public void DisplayFilteredBookings(IReadOnlyCollection<Booking> bookings)
     {
         Console.WriteLine("\n--- Filtered Bookings Results ---");
@@ -24,6 +25,7 @@ public class MenuRenderer : IMenuRenderer
         }
     }
 
+    /// <inheritdoc />
     public void DisplayPassengerBookings(IReadOnlyCollection<Booking> bookings)
     {
         if (bookings.Count == 0)
@@ -41,6 +43,7 @@ public class MenuRenderer : IMenuRenderer
         }
     }
 
+    /// <inheritdoc />
     public void DisplayPassengerFlights(IReadOnlyCollection<Flight> flights)
     {
         if (flights.Count == 0)
@@ -52,6 +55,7 @@ public class MenuRenderer : IMenuRenderer
         DisplayFlights(flights);
     }
 
+    /// <inheritdoc />
     public void DisplayManagerFlights(IReadOnlyCollection<Flight> flights)
     {
         if (flights.Count == 0)
@@ -63,6 +67,7 @@ public class MenuRenderer : IMenuRenderer
         DisplayFlights(flights);
     }
 
+    /// <inheritdoc />
     public void DisplayValidationErrors(IReadOnlyCollection<FileValidationError> errors)
     {
         Console.WriteLine("----------------------------------------");
@@ -77,6 +82,7 @@ public class MenuRenderer : IMenuRenderer
         Console.WriteLine("----------------------------------------");
     }
 
+    /// <inheritdoc />
     public void DisplayValidationGuide(IReadOnlyCollection<FieldValidationInfo> guide)
     {
         Console.WriteLine("--------------------------------------------------------------------------------");
@@ -93,6 +99,7 @@ public class MenuRenderer : IMenuRenderer
         Console.WriteLine("--------------------------------------------------------------------------------");
     }
 
+    /// <inheritdoc />
     public void WaitForReturn()
     {
         Console.WriteLine("\nPress Enter to return.");

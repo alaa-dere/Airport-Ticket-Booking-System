@@ -27,6 +27,7 @@ namespace TASK2.Services.Manager
             _validationService = validationService;
         }
 
+        /// <inheritdoc />
         public (bool IsSuccess, IReadOnlyCollection<FileValidationError> Errors) BatchUploadFlights(string filePath)
         {
             var errors = new List<FileValidationError>();
@@ -80,6 +81,7 @@ namespace TASK2.Services.Manager
             return (true, errors);
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<FieldValidationInfo> GetFlightValidationDetails()
         {
             return typeof(Flight)
@@ -93,11 +95,13 @@ namespace TASK2.Services.Manager
                 .ToList();
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Flight> GetAll()
         {
             return _flightService.GetAll();
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<FileValidationError> ValidateImportedFlightData(string filePath)
         {
             var errors = new List<FileValidationError>();
@@ -199,7 +203,8 @@ namespace TASK2.Services.Manager
             };
         }
 
-         public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
+        /// <inheritdoc />
+        public IReadOnlyCollection<Booking> FilterBookings(BookingFilter filter)
         {
             return _bookingService.FilterBookings(filter);
         }

@@ -18,6 +18,7 @@ namespace TASK2.Services.Validation;
             _flightRepo = flightRepo;
         }
 
+        /// <inheritdoc />
         public FlightRowValidationResult ValidateFlightRow(
             string csvLine,
             int rowNumber,

@@ -13,11 +13,13 @@ namespace TASK2.Services.Flights
             _flightRepository = flightRepository;
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Flight> GetAll()
         {
             return _flightRepository.GetAll();
         }
 
+        /// <inheritdoc />
         public IReadOnlyCollection<Flight> Add(ICollection<Flight> flights)
         {
             ValidateFlightsForAdd(flights);
@@ -25,6 +27,7 @@ namespace TASK2.Services.Flights
             return flights.ToList();
         }
 
+        /// <inheritdoc />
         public Flight Update(Flight flight)
         {
             ValidateFlight(flight);
@@ -32,10 +35,12 @@ namespace TASK2.Services.Flights
             return flight;
         }
 
+        /// <inheritdoc />
         public void Delete(int id)
         {
             _flightRepository.Delete(id);
         }
+        /// <inheritdoc />
         public IReadOnlyCollection<Flight> SearchFlights(FlightFilter filter)
         {
             return _flightRepository.SearchFlights(filter);
