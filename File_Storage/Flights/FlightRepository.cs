@@ -161,7 +161,7 @@ public class FlightRepository : IFlightRepository, IBookingRepository
 
             return (!filter.FlightId.HasValue || b.FlightId == filter.FlightId.Value) &&
                 (!filter.MaxPrice.HasValue || b.PricePaid <= filter.MaxPrice.Value) &&
-                (string.IsNullOrEmpty(filter.PassengerEmail) || b.Passenger.Email!.Equals(filter.PassengerEmail, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrEmpty(filter.PassengerEmail) || b.Passenger.Email.Value.Equals(filter.PassengerEmail, StringComparison.OrdinalIgnoreCase)) &&
                 (!filter.FlightClass.HasValue || b.SelectedClass == filter.FlightClass.Value) &&
                 (string.IsNullOrEmpty(filter.DepartureCountry) || flight.DepartureCountry!.Equals(filter.DepartureCountry, StringComparison.OrdinalIgnoreCase)) &&
                 (string.IsNullOrEmpty(filter.DestinationCountry) || flight.DestinationCountry!.Equals(filter.DestinationCountry, StringComparison.OrdinalIgnoreCase)) &&

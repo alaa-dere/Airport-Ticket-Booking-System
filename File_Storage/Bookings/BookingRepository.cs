@@ -62,7 +62,7 @@ public class BookingRepository : IBookingRepository
         return _bookings.Where(b =>
             (!filter.FlightId.HasValue || b.FlightId == filter.FlightId.Value) &&
             (!filter.MaxPrice.HasValue || b.PricePaid <= filter.MaxPrice.Value) &&
-            (string.IsNullOrEmpty(filter.PassengerEmail) || b.Passenger.Email!.Equals(filter.PassengerEmail, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(filter.PassengerEmail) || b.Passenger.Email.Value.Equals(filter.PassengerEmail, StringComparison.OrdinalIgnoreCase)) &&
             (!filter.FlightClass.HasValue || b.SelectedClass == filter.FlightClass.Value)
         ).ToList();
     }
@@ -100,12 +100,10 @@ public class BookingRepository : IBookingRepository
                 {
                     Id = id,
                     FlightId = flightId,
-                    Passenger = new Passenger
-                    {
-                        Email = columns[2],
-                        Name = columns[3],
-                        Phone = columns[4]
-                    },
+                    Passenger = new Passenger(
+                        new Email(columns[2]),
+                        columns[3],
+                        columns[4]),
                     SelectedClass = selectedClass,
                     PricePaid = pricePaid
                 });
@@ -121,7 +119,7 @@ public class BookingRepository : IBookingRepository
         lines.AddRange(bookings.Select(b => BookingsParser.ToLine(
             b.Id,
             b.FlightId,
-            b.Passenger.Email,
+            b.Passenger.Email.Value,
             b.Passenger.Name,
             b.Passenger.Phone,
             b.SelectedClass,

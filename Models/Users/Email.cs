@@ -1,11 +1,11 @@
 namespace TASK2.Models;
 
-public readonly record struct PassengerEmail
+public readonly struct Email
 {
-    public PassengerEmail(string value)
+    public Email(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new ArgumentException("Passenger email is required.", nameof(value));
+            throw new ArgumentException("Email is required.", nameof(value));
 
         Value = value.Trim();
     }

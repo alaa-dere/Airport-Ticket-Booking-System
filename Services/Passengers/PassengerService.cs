@@ -47,7 +47,7 @@ namespace TASK2.Services.Passengers
 
             var alreadyBooked = _bookingService.GetAll().Any(b =>
                 b.FlightId == bookingRequest.FlightId &&
-                b.Passenger.Email!.Equals(bookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
+                b.Passenger.Email.Value.Equals(bookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
 
             if (alreadyBooked)
             {
@@ -59,12 +59,10 @@ namespace TASK2.Services.Passengers
             var newBooking = new Booking
             {
                 FlightId = bookingRequest.FlightId,
-                Passenger = new Passenger
-                {
-                    Email = bookingRequest.PassengerEmail,
-                    Name = bookingRequest.PassengerName,
-                    Phone = bookingRequest.PassengerPhone
-                },
+                Passenger = new Passenger(
+                    new Email(bookingRequest.PassengerEmail),
+                    bookingRequest.PassengerName,
+                    bookingRequest.PassengerPhone),
                 SelectedClass = bookingRequest.SelectedClass,
                 PricePaid = finalPrice
             };
@@ -79,7 +77,7 @@ namespace TASK2.Services.Passengers
        
         public bool Modify(ModifyBookingRequest modifyBookingRequest)
         {
-        var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == modifyBookingRequest.BookingId && b.Passenger.Email!.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
+        var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == modifyBookingRequest.BookingId && b.Passenger.Email.Value.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
             
             if (booking == null)
                 return false;
@@ -92,7 +90,7 @@ namespace TASK2.Services.Passengers
             var alreadyBooked = _bookingService.GetAll().Any(b =>
                 b.Id != modifyBookingRequest.BookingId &&
                 b.FlightId == modifyBookingRequest.NewFlightId &&
-                b.Passenger.Email!.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
+                b.Passenger.Email.Value.Equals(modifyBookingRequest.PassengerEmail, StringComparison.OrdinalIgnoreCase));
 
             if (alreadyBooked)
                 return false;
@@ -108,7 +106,7 @@ namespace TASK2.Services.Passengers
         public IReadOnlyCollection<Booking> GetMyBookings(string passengerEmail)
         {
             return _bookingService.GetAll()
-             .Where(b => b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase))
+             .Where(b => b.Passenger.Email.Value.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase))
              .ToList();
         }
     }

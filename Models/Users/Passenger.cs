@@ -2,8 +2,15 @@ namespace TASK2.Models
 {
     public class Passenger
     {
-        public required string Email { get; set; }
-        public required string Name { get; set; }
-        public required string Phone { get; set; }
+        public Passenger(Email email, string name, string phone)
+        {
+            Email = email;
+            Name = name;
+            Phone = phone;
+        }
+
+        public Email Email { get; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
     }
 }

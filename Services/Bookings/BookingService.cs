@@ -60,10 +60,10 @@ namespace TASK2.Services.Bookings
                 throw new ValidationException("Price paid must be a valid positive number.");
 
             if (booking.Passenger == null ||
-                string.IsNullOrWhiteSpace(booking.Passenger.Email) ||
+                string.IsNullOrWhiteSpace(booking.Passenger.Email.Value) ||
                 string.IsNullOrWhiteSpace(booking.Passenger.Name) ||
                 string.IsNullOrWhiteSpace(booking.Passenger.Phone) ||
-                !booking.Passenger.Email.IsValidSimpleValue() ||
+                !booking.Passenger.Email.Value.IsValidSimpleValue() ||
                 !booking.Passenger.Name.IsValidSimpleValue() ||
                 !booking.Passenger.Phone.IsValidSimpleValue())
             {

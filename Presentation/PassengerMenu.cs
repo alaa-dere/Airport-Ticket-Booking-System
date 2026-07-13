@@ -22,7 +22,7 @@ namespace TASK2.Presentation
         } 
 
 
-        public void Display(PassengerEmail email)
+        public void Display(Email email)
         {
             bool logout = false;
 
@@ -95,7 +95,7 @@ namespace TASK2.Presentation
             return _passengerService.SearchFlights(filter);
         }
 
-        private void HandleBookFlight(PassengerEmail email)
+        private void HandleBookFlight(Email email)
         {
             Console.Clear();
             Console.WriteLine("=== Book a Flight ===");
@@ -130,7 +130,7 @@ namespace TASK2.Presentation
             _renderer.WaitForReturn();
         }
 
-        private void HandleViewMyBookings(PassengerEmail email)
+        private void HandleViewMyBookings(Email email)
         {
             Console.Clear();
             Console.WriteLine("=== My Bookings ===");
@@ -141,7 +141,7 @@ namespace TASK2.Presentation
             _renderer.WaitForReturn();
         }
 
-        private void HandleModifyBooking(PassengerEmail email)
+        private void HandleModifyBooking(Email email)
         {
             Console.Clear();
             Console.WriteLine("=== Modify Booking ===");
@@ -204,7 +204,7 @@ namespace TASK2.Presentation
 
         private Booking BookFlightForPassenger(
             int flightId,
-            PassengerEmail email,
+            Email email,
             string name,
             string phone,
             FlightClass selectedClass)
@@ -219,7 +219,7 @@ namespace TASK2.Presentation
             });
         }
 
-        private IReadOnlyCollection<Booking> DisplayBookingsAvailableForModification(PassengerEmail email)
+        private IReadOnlyCollection<Booking> DisplayBookingsAvailableForModification(Email email)
         {
             var myBookings = _passengerService.GetMyBookings(email.Value);
             _renderer.DisplayPassengerBookings(myBookings);
@@ -239,7 +239,7 @@ namespace TASK2.Presentation
 
         private bool ModifyPassengerBooking(
             int bookingId,
-            PassengerEmail email,
+            Email email,
             int newFlightId,
             FlightClass newClass)
         {
@@ -259,7 +259,7 @@ namespace TASK2.Presentation
                 : "\nModification failed. Check Booking ID, Flight ID, or duplicate booking.");
         }
 
-        private void HandleCancelBooking(PassengerEmail email)
+        private void HandleCancelBooking(Email email)
         {
             Console.Clear();
             Console.WriteLine("=== Cancel Booking ===");
