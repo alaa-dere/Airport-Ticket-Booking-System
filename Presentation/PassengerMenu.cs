@@ -282,15 +282,8 @@ namespace TASK2.Presentation
                 return;
             }
 
-            try
-            {
-                _passengerService.Cancel(bookingId, email.Value);
-                Console.WriteLine("\nBooking canceled successfully!");
-            }
-            catch (KeyNotFoundException exception)
-            {
-                Console.WriteLine($"\nCancellation failed. {exception.Message}");
-            }
+            _passengerService.Cancel(bookingId, email.Value);
+            Console.WriteLine("\nCancellation request processed.");
 
             Console.WriteLine("\nPress Enter to return.");
             Console.ReadLine();

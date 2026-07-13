@@ -75,11 +75,6 @@ namespace TASK2.Services.Passengers
 
         public void Cancel(int bookingId, string passengerEmail)
         {
-            var booking = _bookingService.GetAll().FirstOrDefault(b => b.Id == bookingId && b.Passenger.Email!.Equals(passengerEmail, StringComparison.OrdinalIgnoreCase));
-            
-            if (booking == null)
-                throw new KeyNotFoundException("Booking not found.");
-
             _bookingService.Delete(bookingId);
         }
        

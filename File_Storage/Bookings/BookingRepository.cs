@@ -51,7 +51,7 @@ public class BookingRepository : IBookingRepository
     {
         var bookingToDelete = _bookings.FirstOrDefault(b => b.Id == id);
         if (bookingToDelete == null)
-            throw new KeyNotFoundException("Booking not found.");
+            return;
 
         _bookings.Remove(bookingToDelete);
         WriteBookingsToFile(_bookings);
