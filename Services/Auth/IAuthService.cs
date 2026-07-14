@@ -14,10 +14,8 @@ namespace TASK2.Services.Auth
         /// <summary>
         /// Registers a new passenger user.
         /// </summary>
-        /// <param name="name">The passenger name.</param>
-        /// <param name="email">The passenger email address.</param>
-        /// <param name="password">The passenger password.</param>
+        /// <param name="request">The passenger registration details.</param>
         /// <returns>The registered passenger user.</returns>
-        public User RegisterPassenger(string name, string email, string password);
+        public User RegisterPassenger(RegisterPassengerRequest request);
     }
 }

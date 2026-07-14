@@ -105,7 +105,13 @@ namespace TASK2.Presentation
             if (!EnsureFlightsAvailableToBook(flights))
                 return;
 
-            if (!_inputReader.TryReadFlightIdFromSearchResults(flights, "\nEnter Flight ID to book: ", out int flightId))
+            if (!_inputReader.TryReadFlightIdFromSearchResults(
+                new FlightIdSelectionRequest
+                {
+                    Flights = flights,
+                    Prompt = "\nEnter Flight ID to book: "
+                },
+                out int flightId))
                 return;
 
             string name = _inputReader.ReadRequiredSimpleText("Enter Passenger Name: ");
@@ -160,7 +166,13 @@ namespace TASK2.Presentation
             if (!EnsureFlightsAvailableToModify(flights))
                 return;
 
-            if (!_inputReader.TryReadFlightIdFromSearchResults(flights, "\nEnter New Flight ID: ", out int newFlightId))
+            if (!_inputReader.TryReadFlightIdFromSearchResults(
+                new FlightIdSelectionRequest
+                {
+                    Flights = flights,
+                    Prompt = "\nEnter New Flight ID: "
+                },
+                out int newFlightId))
                 return;
 
             if (!_inputReader.TryReadRequiredFlightClass("\nSelect New Class:", out FlightClass newClass))

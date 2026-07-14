@@ -19,18 +19,15 @@ namespace TASK2.Services.Validation;
         }
 
         /// <inheritdoc />
-        public FlightRowValidationResult ValidateFlightRow(
-            string csvLine,
-            int rowNumber,
-            IReadOnlyCollection<Flight>? existingFlights = null)
+        public FlightRowValidationResult ValidateFlightRow(ValidateFlightRowRequest request)
         {
             var errors = new List<FileValidationError>();
 
-            if (string.IsNullOrWhiteSpace(csvLine))
+            if (string.IsNullOrWhiteSpace(request.CsvLine))
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "Row",
                     ErrorMessage = "Row is empty."
                 });
@@ -43,13 +40,13 @@ namespace TASK2.Services.Validation;
                 };
             }
 
-            var columns = Parser.ParseLine(csvLine);
+            var columns = Parser.ParseLine(request.CsvLine);
 
             if (columns.Length != 7)
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "Row",
                     ErrorMessage = "Invalid row format. Expected 7 columns."
                 });
@@ -76,16 +73,16 @@ namespace TASK2.Services.Validation;
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "Id",
                     ErrorMessage = "Flight ID must be a valid positive integer."
                 });
             }
-            else if ((existingFlights ?? _flightRepo.GetAll()).Any(f => f.Id == id))
+            else if ((request.ExistingFlights ?? _flightRepo.GetAll()).Any(f => f.Id == id))
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "Id",
                     ErrorMessage = $"Flight ID {id} already exists in the system."
                 });
@@ -102,7 +99,7 @@ namespace TASK2.Services.Validation;
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "DepartureTime",
                     ErrorMessage = "Departure Time must be in format yyyy-MM-dd HH:mm."
                 });
@@ -118,7 +115,7 @@ namespace TASK2.Services.Validation;
             {
                 errors.Add(new FileValidationError
                 {
-                    RowNumber = rowNumber,
+                    RowNumber = request.RowNumber,
                     FieldName = "BasePrice",
                     ErrorMessage = "Base Price must be a valid positive number."
                 });
@@ -135,7 +132,12 @@ namespace TASK2.Services.Validation;
                 BasePrice = basePrice
             };
 
-            AddModelValidationErrors(flight, rowNumber, errors);
+            AddModelValidationErrors(new ModelValidationErrorsRequest
+            {
+                Flight = flight,
+                RowNumber = request.RowNumber,
+                Errors = errors
+            });
 
             if (errors.Count > 0)
             {
@@ -155,12 +157,12 @@ namespace TASK2.Services.Validation;
             };
         }
 
-        private static void AddModelValidationErrors(Flight flight, int rowNumber, ICollection<FileValidationError> errors)
+        private static void AddModelValidationErrors(ModelValidationErrorsRequest request)
         {
             var validationResults = new List<ValidationResult>();
-            var validationContext = new ValidationContext(flight);
+            var validationContext = new ValidationContext(request.Flight);
 
-            Validator.TryValidateObject(flight, validationContext, validationResults, true);
+            Validator.TryValidateObject(request.Flight, validationContext, validationResults, true);
 
             foreach (var result in validationResults)
             {
@@ -170,14 +172,14 @@ namespace TASK2.Services.Validation;
 
                 foreach (var fieldName in fieldNames)
                 {
-                    if (errors.Any(e => e.FieldName == fieldName && e.ErrorMessage == result.ErrorMessage))
+                    if (request.Errors.Any(e => e.FieldName == fieldName && e.ErrorMessage == result.ErrorMessage))
                     {
                         continue;
                     }
 
-                    errors.Add(new FileValidationError
+                    request.Errors.Add(new FileValidationError
                     {
-                        RowNumber = rowNumber,
+                        RowNumber = request.RowNumber,
                         FieldName = fieldName,
                         ErrorMessage = result.ErrorMessage ?? "Invalid value."
                     });

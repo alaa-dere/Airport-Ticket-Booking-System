@@ -118,11 +118,10 @@ public class MenuInputReader : IMenuInputReader
 
     /// <inheritdoc />
     public bool TryReadFlightIdFromSearchResults(
-        IReadOnlyCollection<Flight> flights,
-        string prompt,
+        FlightIdSelectionRequest request,
         out int flightId)
     {
-        Console.Write(prompt);
+        Console.Write(request.Prompt);
         if (!int.TryParse(Console.ReadLine(), out flightId))
         {
             Console.WriteLine("Invalid Flight ID.");
@@ -132,7 +131,7 @@ public class MenuInputReader : IMenuInputReader
 
         int selectedFlightId = flightId;
 
-        if (!flights.Any(f => f.Id == selectedFlightId))
+        if (!request.Flights.Any(f => f.Id == selectedFlightId))
         {
             Console.WriteLine("Selected Flight ID is not in the search results.");
             Console.ReadLine();

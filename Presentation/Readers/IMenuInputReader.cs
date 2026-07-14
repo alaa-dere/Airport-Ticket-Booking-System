@@ -26,13 +26,11 @@ namespace TASK2.Presentation.Readers
         /// <summary>
         /// Reads a flight identifier and verifies it exists in the provided search results.
         /// </summary>
-        /// <param name="flights">The flight search results to validate against.</param>
-        /// <param name="prompt">The prompt displayed to the user.</param>
+        /// <param name="request">The flight selection request details.</param>
         /// <param name="flightId">The selected flight identifier when reading succeeds.</param>
         /// <returns>True when a valid flight identifier is read; otherwise false.</returns>
         public bool TryReadFlightIdFromSearchResults(
-            IReadOnlyCollection<Flight> flights,
-            string prompt,
+            FlightIdSelectionRequest request,
             out int flightId
             );
 

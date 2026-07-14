@@ -148,7 +148,12 @@ namespace TASK2.Presentation
 
             try
             {
-                registeredPassenger = _authService.RegisterPassenger(name.Trim(), email.Trim(), password);
+                registeredPassenger = _authService.RegisterPassenger(new RegisterPassengerRequest
+                {
+                    Name = name.Trim(),
+                    Email = email.Trim(),
+                    Password = password
+                });
             }
             catch (ValidationException exception)
             {

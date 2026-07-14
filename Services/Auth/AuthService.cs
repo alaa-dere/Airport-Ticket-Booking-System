@@ -30,20 +30,20 @@ namespace TASK2.Services.Auth
         }
 
         /// <inheritdoc />
-        public User RegisterPassenger(string name, string email, string password)
+        public User RegisterPassenger(RegisterPassengerRequest request)
         {
-            if (string.IsNullOrWhiteSpace(name) ||
-                string.IsNullOrWhiteSpace(email) ||
-                string.IsNullOrWhiteSpace(password) ||
-                !name.IsValidSimpleValue() ||
-                !email.IsValidSimpleValue() ||
-                !password.IsValidSimpleValue())
+            if (string.IsNullOrWhiteSpace(request.Name) ||
+                string.IsNullOrWhiteSpace(request.Email) ||
+                string.IsNullOrWhiteSpace(request.Password) ||
+                !request.Name.IsValidSimpleValue() ||
+                !request.Email.IsValidSimpleValue() ||
+                !request.Password.IsValidSimpleValue())
             {
                 throw new ValidationException("Name, email, and password are required and must not contain commas or new lines.");
             }
 
-            name = name.Trim();
-            email = email.Trim();
+            string name = request.Name.Trim();
+            string email = request.Email.Trim();
 
             if (_userRepository.GetUserByEmail(email) != null)
                 throw new ValidationException("Email is already registered.");
@@ -52,7 +52,7 @@ namespace TASK2.Services.Auth
             {
                 Name = name,
                 Email = email,
-                Password = password,
+                Password = request.Password,
                 Role = UserRole.Passenger
             };
 

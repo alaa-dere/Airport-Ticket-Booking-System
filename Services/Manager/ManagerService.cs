@@ -54,7 +54,12 @@ namespace TASK2.Services.Manager
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                var result = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
+                var result = _validationService.ValidateFlightRow(new ValidateFlightRowRequest
+                {
+                    CsvLine = lines[i],
+                    RowNumber = i + 1,
+                    ExistingFlights = existingFlights
+                });
 
                 if (!result.IsValid)
                 {
@@ -64,7 +69,12 @@ namespace TASK2.Services.Manager
                 {
                     if (!importedFlightIds.Add(result.ValidFlight.Id))
                     {
-                        AddDuplicateFlightIdError(errors, i + 1, result.ValidFlight.Id);
+                        AddDuplicateFlightIdError(new DuplicateFlightIdErrorRequest
+                        {
+                            Errors = errors,
+                            RowNumber = i + 1,
+                            FlightId = result.ValidFlight.Id
+                        });
                         continue;
                     }
 
@@ -127,7 +137,12 @@ namespace TASK2.Services.Manager
                 if (string.IsNullOrWhiteSpace(lines[i]))
                     continue;
 
-                var result = _validationService.ValidateFlightRow(lines[i], i + 1, existingFlights);
+                var result = _validationService.ValidateFlightRow(new ValidateFlightRowRequest
+                {
+                    CsvLine = lines[i],
+                    RowNumber = i + 1,
+                    ExistingFlights = existingFlights
+                });
 
                 if (!result.IsValid)
                 {
@@ -135,20 +150,25 @@ namespace TASK2.Services.Manager
                 }
                 else if (result.ValidFlight != null && !importedFlightIds.Add(result.ValidFlight.Id))
                 {
-                    AddDuplicateFlightIdError(errors, i + 1, result.ValidFlight.Id);
+                    AddDuplicateFlightIdError(new DuplicateFlightIdErrorRequest
+                    {
+                        Errors = errors,
+                        RowNumber = i + 1,
+                        FlightId = result.ValidFlight.Id
+                    });
                 }
             }
 
             return errors;
         }
 
-        private static void AddDuplicateFlightIdError(ICollection<FileValidationError> errors, int rowNumber, int flightId)
+        private static void AddDuplicateFlightIdError(DuplicateFlightIdErrorRequest request)
         {
-            errors.Add(new FileValidationError
+            request.Errors.Add(new FileValidationError
             {
-                RowNumber = rowNumber,
+                RowNumber = request.RowNumber,
                 FieldName = "Id",
-                ErrorMessage = $"Flight ID {flightId} is duplicated in the imported file."
+                ErrorMessage = $"Flight ID {request.FlightId} is duplicated in the imported file."
             });
         }
 
