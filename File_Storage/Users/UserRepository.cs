@@ -22,10 +22,10 @@ public class UserRepository : IUserRepository
     }
 
     /// <inheritdoc />
-    public User? GetUserByEmail(string email)
+    public User? GetUserByEmail(Email email)
     {
         return _users.FirstOrDefault(user =>
-            user.Email.Equals(email, StringComparison.OrdinalIgnoreCase));
+            user.Email.Equals(email.Value, StringComparison.OrdinalIgnoreCase));
     }
 
     private List<User> LoadUsersFromFile()

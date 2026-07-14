@@ -100,7 +100,7 @@ namespace TASK2.Presentation
                 return null;
             }
 
-            var user = _authService.Login(email.Trim(), password);
+            var user = _authService.Login(new Email(email), password);
 
             if (user == null)
             {
@@ -151,7 +151,7 @@ namespace TASK2.Presentation
                 registeredPassenger = _authService.RegisterPassenger(new RegisterPassengerRequest
                 {
                     Name = name.Trim(),
-                    Email = email.Trim(),
+                    Email = new Email(email),
                     Password = password
                 });
             }

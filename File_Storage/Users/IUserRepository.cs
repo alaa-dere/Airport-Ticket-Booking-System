@@ -15,7 +15,7 @@ namespace TASK2.File_Storage.Users
         /// </summary>
         /// <param name="email">The email address to search for.</param>
         /// <returns>The matching user, or null when no user is found.</returns>
-        public User? GetUserByEmail(string email);
+        public User? GetUserByEmail(Email email);
 
         /// <summary>
         /// Adds a new user to storage.

@@ -9,7 +9,7 @@ namespace TASK2.Services.Auth
         /// <param name="email">The user's email address.</param>
         /// <param name="password">The user's password.</param>
         /// <returns>The authenticated user.</returns>
-        public User? Login(string email, string password);
+        public User? Login(Email email, string password);
 
         /// <summary>
         /// Registers a new passenger user.
