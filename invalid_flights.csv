@@ -1,0 +1,7 @@
+Id,DepartureCountry,DestinationCountry,DepartureAirport,ArrivalAirport,DepartureTime,Price
+24,Jordan,Egypt,AMM,CAI,2026-08-01 14:00,150
+26,Jordan,UK,AMM,LHR,2025-01-10 10:00,500
+27,Jordan,France,,CDG,2026-10-01 12:00,450
+28,Jordan,Italy,AMM,FCO,2026-11-01 15:00,-100
+23,Jordan,Germany,AMM,FRA,2026-12-15 08:30,600
+22,Jordan,UAE,AMM,DXB,2026-12-30 10:10,300
