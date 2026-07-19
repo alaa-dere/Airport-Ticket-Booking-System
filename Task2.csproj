@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <DefaultItemExcludes>
+      $(DefaultItemExcludes);Task2.Tests\**
+    </DefaultItemExcludes>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+<ItemGroup>
+  <Content Include="flights.csv">
+    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+  </Content>
+  <Content Include="bookings.csv">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <Content Include="flights_storage.csv">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+  <Content Include="users.csv">
+    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+  </Content>
+</ItemGroup>
+</Project>

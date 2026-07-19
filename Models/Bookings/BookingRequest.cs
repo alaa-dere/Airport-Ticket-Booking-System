@@ -1,0 +1,10 @@
+namespace TASK2.Models;
+
+public class BookingRequest
+{
+    public int FlightId { get; set; }
+    public required string PassengerEmail { get; set; }
+    public required string PassengerName { get; set; }
+    public required string PassengerPhone { get; set; }
+    public FlightClass SelectedClass { get; set; }
+}
