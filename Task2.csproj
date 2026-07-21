@@ -1,14 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <DefaultItemExcludes>
-      $(DefaultItemExcludes);Task2.Tests\**
-    </DefaultItemExcludes>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net10.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
+<PropertyGroup>
+  <DefaultItemExcludes>
+    $(DefaultItemExcludes);Task2.Tests\**
+  </DefaultItemExcludes>
+
+  <OutputType>Exe</OutputType>
+  <TargetFramework>net10.0</TargetFramework>
+  <ImplicitUsings>enable</ImplicitUsings>
+  <Nullable>enable</Nullable>
+</PropertyGroup>
 <ItemGroup>
   <Content Include="flights.csv">
     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
