@@ -26,6 +26,7 @@ public class PassengerServiceShould
     [Fact]
     public void SearchFlights_ReturnsFlightsFromFlightService()
     {
+        // Arrange
         var filter = new FlightFilter
         {
             DepartureCountry = "Palestine"
@@ -39,14 +40,17 @@ public class PassengerServiceShould
             .Setup(service => service.SearchFlights(filter))
             .Returns(expectedFlights);
 
+        // Act
         var result = _passengerService.SearchFlights(filter);
 
+        // Assert
         Assert.Equal(expectedFlights, result);
     }
 
     [Fact]
     public void Book_ThrowsValidationException_WhenPassengerDataIsEmpty()
     {
+        // Arrange
         var request = new BookingRequest
         {
             FlightId = 1,
@@ -56,30 +60,36 @@ public class PassengerServiceShould
             SelectedClass = FlightClass.Economy
         };
 
+        // Act
         var exception = Assert.Throws<ValidationException>(() =>
             _passengerService.Book(request));
 
+        // Assert
         Assert.Contains("required", exception.Message);
     }
 
     [Fact]
     public void Book_ThrowsKeyNotFoundException_WhenFlightDoesNotExist()
     {
+        // Arrange
         var request = CreateBookingRequest();
 
         _mockFlightService
             .Setup(service => service.GetAll())
             .Returns(new List<Flight>());
 
+        // Act
         var exception = Assert.Throws<KeyNotFoundException>(() =>
             _passengerService.Book(request));
 
+        // Assert
         Assert.Equal("Flight not found.", exception.Message);
     }
 
     [Fact]
     public void Book_ThrowsInvalidOperationException_WhenPassengerAlreadyBookedFlight()
     {
+        // Arrange
         var request = CreateBookingRequest();
         var existingBooking = CreateBooking(1, 1, "passenger@gmail.com");
 
@@ -90,15 +100,18 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Booking> { existingBooking });
 
+        // Act
         var exception = Assert.Throws<InvalidOperationException>(() =>
             _passengerService.Book(request));
 
+        // Assert
         Assert.Equal("Passenger already booked this flight.", exception.Message);
     }
 
     [Fact]
     public void Book_ReturnsBooking_WhenRequestIsValid()
     {
+        // Arrange
         var request = CreateBookingRequest();
         var expectedBooking = CreateBooking(1, 1, "passenger@gmail.com");
 
@@ -112,8 +125,10 @@ public class PassengerServiceShould
             .Setup(service => service.Add(It.IsAny<Booking>()))
             .Returns(expectedBooking);
 
+        // Act
         var result = _passengerService.Book(request);
 
+        // Assert
         Assert.Equal(expectedBooking, result);
         _mockBookingService.Verify(service => service.Add(It.IsAny<Booking>()), Times.Once);
     }
@@ -121,28 +136,38 @@ public class PassengerServiceShould
     [Fact]
     public void Cancel_DeletesBooking()
     {
-        _passengerService.Cancel(1, "passenger@example.com");
+        // Arrange
+        var bookingId = 1;
+        var passengerEmail = "passenger@example.com";
 
-        _mockBookingService.Verify(service => service.Delete(1), Times.Once);
+        // Act
+        _passengerService.Cancel(bookingId, passengerEmail);
+
+        // Assert
+        _mockBookingService.Verify(service => service.Delete(bookingId), Times.Once);
     }
 
     [Fact]
     public void Modify_ReturnsFalse_WhenBookingDoesNotExist()
     {
+        // Arrange
         var request = CreateModifyRequest();
 
         _mockBookingService
             .Setup(service => service.GetAll())
             .Returns(new List<Booking>());
 
+        // Act
         var result = _passengerService.Modify(request);
 
+        // Assert
         Assert.False(result);
     }
 
     [Fact]
     public void Modify_ReturnsFalse_WhenNewFlightDoesNotExist()
     {
+        // Arrange
         var request = CreateModifyRequest();
 
         _mockBookingService
@@ -155,14 +180,17 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Flight>());
 
+        // Act
         var result = _passengerService.Modify(request);
 
+        // Assert
         Assert.False(result);
     }
 
     [Fact]
     public void Modify_ReturnsFalse_WhenPassengerAlreadyBookedNewFlight()
     {
+        // Arrange
         var request = CreateModifyRequest();
         var currentBooking = CreateBooking(1, 1, "passenger@gmail.com");
         var duplicateBooking = CreateBooking(2, 2, "passenger@gmail.com");
@@ -174,14 +202,17 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Flight> { CreateFlight(2) });
 
+        // Act
         var result = _passengerService.Modify(request);
 
+        // Assert
         Assert.False(result);
     }
 
     [Fact]
     public void Modify_ReturnsTrue_WhenRequestIsValid()
     {
+        // Arrange
         var request = CreateModifyRequest();
         var currentBooking = CreateBooking(1, 1, "passenger@gmail.com");
 
@@ -192,8 +223,10 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Flight> { CreateFlight(2) });
 
+        // Act
         var result = _passengerService.Modify(request);
 
+        // Assert
         Assert.True(result);
         Assert.Equal(2, currentBooking.FlightId);
         Assert.Equal(FlightClass.Business, currentBooking.SelectedClass);
@@ -203,6 +236,7 @@ public class PassengerServiceShould
     [Fact]
     public void GetMyBookings_ReturnsOnlyPassengerBookings()
     {
+        // Arrange
         var passengerBooking = CreateBooking(1, 1, "passenger@gmail.com");
         var anotherBooking = CreateBooking(2, 2, "another@gmail.com");
 
@@ -210,8 +244,10 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Booking> { passengerBooking, anotherBooking });
 
+        // Act
         var result = _passengerService.GetMyBookings("PASSENGER@gmail.com");
 
+        // Assert
         Assert.Single(result);
         Assert.Equal(passengerBooking, result.First());
     }
