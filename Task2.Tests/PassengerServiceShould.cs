@@ -9,6 +9,12 @@ namespace Task2.Tests;
 
 public class PassengerServiceShould
 {
+    private const string PassengerEmail = "passenger@gmail.com";
+    private const string AnotherPassengerEmail = "another@gmail.com";
+    private const string PassengerName = "Test Passenger";
+    private const string PassengerPhone = "05999999999";
+    private static readonly DateTime TestToday = DateTime.Today;
+
     private readonly Mock<IFlightService> _mockFlightService;
     private readonly Mock<IBookingService> _mockBookingService;
     private readonly PassengerService _passengerService;
@@ -91,7 +97,7 @@ public class PassengerServiceShould
     {
         // Arrange
         var request = CreateBookingRequest();
-        var existingBooking = CreateBooking(1, 1, "passenger@gmail.com");
+        var existingBooking = CreateBooking(1, 1, PassengerEmail);
 
         _mockFlightService
             .Setup(service => service.GetAll())
@@ -113,7 +119,7 @@ public class PassengerServiceShould
     {
         // Arrange
         var request = CreateBookingRequest();
-        var expectedBooking = CreateBooking(1, 1, "passenger@gmail.com");
+        var expectedBooking = CreateBooking(1, 1, PassengerEmail);
 
         _mockFlightService
             .Setup(service => service.GetAll())
@@ -138,7 +144,7 @@ public class PassengerServiceShould
     {
         // Arrange
         var bookingId = 1;
-        var passengerEmail = "passenger@example.com";
+        var passengerEmail = PassengerEmail;
 
         // Act
         _passengerService.Cancel(bookingId, passengerEmail);
@@ -174,7 +180,7 @@ public class PassengerServiceShould
             .Setup(service => service.GetAll())
             .Returns(new List<Booking>
             {
-                CreateBooking(1, 1, "passenger@gmail.com")
+                CreateBooking(1, 1, PassengerEmail)
             });
         _mockFlightService
             .Setup(service => service.GetAll())
@@ -192,8 +198,8 @@ public class PassengerServiceShould
     {
         // Arrange
         var request = CreateModifyRequest();
-        var currentBooking = CreateBooking(1, 1, "passenger@gmail.com");
-        var duplicateBooking = CreateBooking(2, 2, "passenger@gmail.com");
+        var currentBooking = CreateBooking(1, 1, PassengerEmail);
+        var duplicateBooking = CreateBooking(2, 2, PassengerEmail);
 
         _mockBookingService
             .Setup(service => service.GetAll())
@@ -214,7 +220,7 @@ public class PassengerServiceShould
     {
         // Arrange
         var request = CreateModifyRequest();
-        var currentBooking = CreateBooking(1, 1, "passenger@gmail.com");
+        var currentBooking = CreateBooking(1, 1, PassengerEmail);
 
         _mockBookingService
             .Setup(service => service.GetAll())
@@ -237,15 +243,15 @@ public class PassengerServiceShould
     public void GetMyBookings_ReturnsOnlyPassengerBookings_WhenEmailIsProvided()
     {
         // Arrange
-        var passengerBooking = CreateBooking(1, 1, "passenger@gmail.com");
-        var anotherBooking = CreateBooking(2, 2, "another@gmail.com");
+        var passengerBooking = CreateBooking(1, 1, PassengerEmail);
+        var anotherBooking = CreateBooking(2, 2, AnotherPassengerEmail);
 
         _mockBookingService
             .Setup(service => service.GetAll())
             .Returns(new List<Booking> { passengerBooking, anotherBooking });
 
         // Act
-        var result = _passengerService.GetMyBookings("PASSENGER@gmail.com");
+        var result = _passengerService.GetMyBookings(PassengerEmail);
 
         // Assert
         Assert.Single(result);
@@ -261,7 +267,7 @@ public class PassengerServiceShould
             DestinationCountry = "Jordan",
             DepartureAirport = "Airport A",
             ArrivalAirport = "Airport B",
-            DepartureTime = DateTime.Today.AddDays(1),
+            DepartureTime = TestToday.AddDays(1),
             BasePrice = 100
         };
     }
@@ -271,9 +277,9 @@ public class PassengerServiceShould
         return new BookingRequest
         {
             FlightId = 1,
-            PassengerEmail = "passenger@gmail.com",
-            PassengerName = "Test Passenger",
-            PassengerPhone = "05997659598",
+            PassengerEmail = PassengerEmail,
+            PassengerName = PassengerName,
+            PassengerPhone = PassengerPhone,
             SelectedClass = FlightClass.Economy
         };
     }
@@ -283,7 +289,7 @@ public class PassengerServiceShould
         return new ModifyBookingRequest
         {
             BookingId = 1,
-            PassengerEmail = "passenger@gmail.com",
+            PassengerEmail = PassengerEmail,
             NewFlightId = 2,
             NewClass = FlightClass.Business
         };

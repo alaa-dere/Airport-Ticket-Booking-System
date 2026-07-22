@@ -11,6 +11,8 @@ namespace Task2.Tests;
 
 public class ManagerServiceShould
 {
+    private static readonly DateTime TestToday = DateTime.Today;
+
     private readonly Mock<IFlightService> _mockFlightService;
     private readonly Mock<IBookingService> _mockBookingService;
     private readonly Mock<IFlightRepository> _mockFlightRepository;
@@ -187,7 +189,7 @@ public class ManagerServiceShould
     public void BatchUploadFlights_ReturnsError_WhenDepartureTimeIsInPast()
     {
         // Arrange
-        var pastDate = DateTime.Today.AddDays(-1).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+        var pastDate = TestToday.AddDays(-1).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
         var line = $"1,Palestine,Jordan,Airport A,Airport B,{pastDate},100";
         var filePath = CreateCsvFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
@@ -398,7 +400,7 @@ public class ManagerServiceShould
 
     private static string FutureDate()
     {
-        return DateTime.Today.AddDays(10).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
+        return TestToday.AddDays(10).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
     }
 
     private static Flight CreateFlight(int id)
@@ -410,7 +412,7 @@ public class ManagerServiceShould
             DestinationCountry = "Jordan",
             DepartureAirport = "Airport A",
             ArrivalAirport = "Airport B",
-            DepartureTime = DateTime.Today.AddDays(1),
+            DepartureTime = TestToday.AddDays(1),
             BasePrice = 100
         };
     }
