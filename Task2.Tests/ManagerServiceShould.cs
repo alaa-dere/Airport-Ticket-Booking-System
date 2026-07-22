@@ -68,7 +68,7 @@ public class ManagerServiceShould
     }
 
     [Fact]
-    public void BatchUploadFlights_IgnoresEmptyLines()
+    public void BatchUploadFlights_IgnoresLines_WhenLinesAreEmpty()
     {
         // Arrange
         var filePath = CreateCsvFile("", "   ");
@@ -328,7 +328,7 @@ public class ManagerServiceShould
     }
 
     [Fact]
-    public void GetFlightValidationDetails_ReturnsDetailsForFlightFields()
+    public void GetFlightValidationDetails_ReturnsDetailsForFlightFields_WhenCalled()
     {
         // Act
         var details = _managerService.GetFlightValidationDetails();
@@ -341,7 +341,7 @@ public class ManagerServiceShould
     }
 
     [Fact]
-    public void GetFlightValidationDetails_ReturnsCorrectDetailsForId()
+    public void GetFlightValidationDetails_ReturnsCorrectDetailsForId_WhenCalled()
     {
         // Act
         var details = _managerService.GetFlightValidationDetails();
@@ -354,7 +354,7 @@ public class ManagerServiceShould
     }
 
     [Fact]
-    public void GetAll_ReturnsFlightsFromFlightService()
+    public void GetAll_ReturnsFlightsFromFlightService_WhenCalled()
     {
         // Arrange
         var expectedFlights = new List<Flight> { CreateFlight(1) };
@@ -368,7 +368,7 @@ public class ManagerServiceShould
     }
 
     [Fact]
-    public void FilterBookings_ReturnsBookingsFromBookingService()
+    public void FilterBookings_ReturnsBookingsFromBookingService_WhenFilterIsProvided()
     {
         // Arrange
         var filter = new BookingFilter { FlightId = 1 };

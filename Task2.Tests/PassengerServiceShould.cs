@@ -24,7 +24,7 @@ public class PassengerServiceShould
     }
 
     [Fact]
-    public void SearchFlights_ReturnsFlightsFromFlightService()
+    public void SearchFlights_ReturnsFlightsFromFlightService_WhenFilterIsProvided()
     {
         // Arrange
         var filter = new FlightFilter
@@ -134,7 +134,7 @@ public class PassengerServiceShould
     }
 
     [Fact]
-    public void Cancel_DeletesBooking()
+    public void Cancel_DeletesBooking_WhenCalled()
     {
         // Arrange
         var bookingId = 1;
@@ -234,7 +234,7 @@ public class PassengerServiceShould
     }
 
     [Fact]
-    public void GetMyBookings_ReturnsOnlyPassengerBookings()
+    public void GetMyBookings_ReturnsOnlyPassengerBookings_WhenEmailIsProvided()
     {
         // Arrange
         var passengerBooking = CreateBooking(1, 1, "passenger@gmail.com");
