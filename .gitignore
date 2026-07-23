@@ -1,3 +1,5 @@
 bin/
 obj/
 *.user
+Task2.Tests/CoverageReport/
+Task2.Tests/TestResults/
