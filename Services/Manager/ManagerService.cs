@@ -8,6 +8,7 @@ using TASK2.Services.Flights;
 using TASK2.Services.Validation;
 using TASK2.Models;
 using TASK2.Validation;
+using TASK2.File_Storage;
 
 namespace TASK2.Services.Manager
 {
@@ -16,15 +17,18 @@ namespace TASK2.Services.Manager
         private readonly IFlightService _flightService;
         private readonly IBookingService _bookingService;
         private readonly IValidationService _validationService;
+        private readonly IFileProvider _fileProvider;
 
         public ManagerService(
             IFlightService flightService,
             IBookingService bookingService,
-            IValidationService validationService)
+            IValidationService validationService,
+            IFileProvider fileProvider)
         {
             _flightService = flightService;
             _bookingService = bookingService;
             _validationService = validationService;
+            _fileProvider = fileProvider;
         }
 
         /// <inheritdoc />
@@ -34,7 +38,7 @@ namespace TASK2.Services.Manager
             var validFlights = new List<Flight>();
             var importedFlightIds = new HashSet<int>();
 
-            if (!System.IO.File.Exists(filePath))
+            if (!_fileProvider.Exists(filePath))
             {
                 errors.Add(new FileValidationError
                 {
@@ -46,7 +50,7 @@ namespace TASK2.Services.Manager
                 return (false, errors);
             }
 
-            var lines = System.IO.File.ReadAllLines(filePath);
+            var lines = _fileProvider.ReadAllLines(filePath);
             var existingFlights = _flightService.GetAll();
 
             for (int i = 1; i < lines.Length; i++)
@@ -117,7 +121,7 @@ namespace TASK2.Services.Manager
             var errors = new List<FileValidationError>();
             var importedFlightIds = new HashSet<int>();
 
-            if (!System.IO.File.Exists(filePath))
+            if (!_fileProvider.Exists(filePath))
             {
                 errors.Add(new FileValidationError
                 {
@@ -129,7 +133,7 @@ namespace TASK2.Services.Manager
                 return errors;
             }
 
-            var lines = System.IO.File.ReadAllLines(filePath);
+            var lines = _fileProvider.ReadAllLines(filePath);
             var existingFlights = _flightService.GetAll();
 
             for (int i = 1; i < lines.Length; i++)

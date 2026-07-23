@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using Moq;
+using TASK2.File_Storage;
 using TASK2.File_Storage.Flights;
 using TASK2.Models;
 using TASK2.Services.Bookings;
@@ -11,11 +12,13 @@ namespace Task2.Tests;
 
 public class ManagerServiceShould
 {
+    private const string FilePath = "flights.csv";
     private static readonly DateTime TestToday = DateTime.Today;
 
     private readonly Mock<IFlightService> _mockFlightService;
     private readonly Mock<IBookingService> _mockBookingService;
     private readonly Mock<IFlightRepository> _mockFlightRepository;
+    private readonly Mock<IFileProvider> _mockFileProvider;
     private readonly ManagerService _managerService;
 
     public ManagerServiceShould()
@@ -23,13 +26,15 @@ public class ManagerServiceShould
         _mockFlightService = new Mock<IFlightService>();
         _mockBookingService = new Mock<IBookingService>();
         _mockFlightRepository = new Mock<IFlightRepository>();
+        _mockFileProvider = new Mock<IFileProvider>();
 
         var validationService = new ValidationService(_mockFlightRepository.Object);
 
         _managerService = new ManagerService(
             _mockFlightService.Object,
             _mockBookingService.Object,
-            validationService);
+            validationService,
+            _mockFileProvider.Object);
     }
 
     [Fact]
@@ -51,7 +56,7 @@ public class ManagerServiceShould
     public void BatchUploadFlights_ReturnsSuccess_WhenLineIsValid()
     {
         // Arrange
-        var filePath = CreateCsvFile(ValidFlightLine());
+        var filePath = SetupFile(ValidFlightLine());
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -64,16 +69,13 @@ public class ManagerServiceShould
         _mockFlightService.Verify(
             service => service.Add(It.Is<ICollection<Flight>>(flights => flights.Count == 1)),
             Times.Once);
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
     public void BatchUploadFlights_IgnoresLines_WhenLinesAreEmpty()
     {
         // Arrange
-        var filePath = CreateCsvFile("", "   ");
+        var filePath = SetupFile("", "   ");
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -82,16 +84,13 @@ public class ManagerServiceShould
         // Assert
         Assert.True(result.IsSuccess);
         Assert.Empty(result.Errors);
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
     public void BatchUploadFlights_ReturnsError_WhenRowFormatIsInvalid()
     {
         // Arrange
-        var filePath = CreateCsvFile("invalid flight data");
+        var filePath = SetupFile("invalid flight data");
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -100,9 +99,6 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == "Row");
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -110,7 +106,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = $"abc,Palestine,Jordan,Airport A,Airport B,{FutureDate()},100";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -119,16 +115,13 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == "Id");
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
     public void BatchUploadFlights_ReturnsError_WhenFlightIdAlreadyExists()
     {
         // Arrange
-        var filePath = CreateCsvFile(ValidFlightLine());
+        var filePath = SetupFile(ValidFlightLine());
         _mockFlightService
             .Setup(service => service.GetAll())
             .Returns(new List<Flight> { CreateFlight(1) });
@@ -139,9 +132,6 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.ErrorMessage.Contains("already exists"));
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -149,7 +139,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = $"1,,,,,{FutureDate()},100";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -161,9 +151,6 @@ public class ManagerServiceShould
         Assert.Contains(result.Errors, error => error.FieldName == nameof(Flight.DestinationCountry));
         Assert.Contains(result.Errors, error => error.FieldName == nameof(Flight.DepartureAirport));
         Assert.Contains(result.Errors, error => error.FieldName == nameof(Flight.ArrivalAirport));
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -171,7 +158,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = "1,Palestine,Jordan,Airport A,Airport B,wrong-date,100";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -180,9 +167,6 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == "DepartureTime");
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -191,7 +175,7 @@ public class ManagerServiceShould
         // Arrange
         var pastDate = TestToday.AddDays(-1).ToString("yyyy-MM-dd HH:mm", CultureInfo.InvariantCulture);
         var line = $"1,Palestine,Jordan,Airport A,Airport B,{pastDate},100";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -200,9 +184,6 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == nameof(Flight.DepartureTime));
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -210,7 +191,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = $"1,Palestine,Jordan,Airport A,Airport B,{FutureDate()},abc";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -219,9 +200,6 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == "BasePrice");
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -229,7 +207,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = $"1,Palestine,Jordan,Airport A,Airport B,{FutureDate()},0";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -238,16 +216,13 @@ public class ManagerServiceShould
         // Assert
         Assert.False(result.IsSuccess);
         Assert.Contains(result.Errors, error => error.FieldName == nameof(Flight.BasePrice));
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
     public void BatchUploadFlights_ReturnsError_WhenFlightIdIsDuplicatedInFile()
     {
         // Arrange
-        var filePath = CreateCsvFile(ValidFlightLine(), ValidFlightLine());
+        var filePath = SetupFile(ValidFlightLine(), ValidFlightLine());
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -257,9 +232,6 @@ public class ManagerServiceShould
         Assert.False(result.IsSuccess);
         Assert.Single(result.Errors);
         Assert.Contains("duplicated", result.Errors.First().ErrorMessage);
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -280,7 +252,7 @@ public class ManagerServiceShould
     public void ValidateImportedFlightData_ReturnsNoErrors_WhenLineIsValid()
     {
         // Arrange
-        var filePath = CreateCsvFile(ValidFlightLine());
+        var filePath = SetupFile(ValidFlightLine());
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -288,9 +260,6 @@ public class ManagerServiceShould
 
         // Assert   
         Assert.Empty(errors);
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -298,7 +267,7 @@ public class ManagerServiceShould
     {
         // Arrange
         var line = $"1,Palestine,Jordan,Airport A,Airport B,{FutureDate()},invalid-price";
-        var filePath = CreateCsvFile(line);
+        var filePath = SetupFile(line);
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -306,16 +275,13 @@ public class ManagerServiceShould
 
         // Assert
         Assert.Contains(errors, error => error.FieldName == "BasePrice");
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
     public void ValidateImportedFlightData_ReturnsError_WhenFlightIdIsDuplicated()
     {
         // Arrange
-        var filePath = CreateCsvFile(ValidFlightLine(), ValidFlightLine());
+        var filePath = SetupFile(ValidFlightLine(), ValidFlightLine());
         _mockFlightService.Setup(service => service.GetAll()).Returns(new List<Flight>());
 
         // Act
@@ -324,9 +290,6 @@ public class ManagerServiceShould
         // Assert
         Assert.Single(errors);
         Assert.Contains("duplicated", errors.First().ErrorMessage);
-
-        // Cleanup
-        File.Delete(filePath);
     }
 
     [Fact]
@@ -386,11 +349,17 @@ public class ManagerServiceShould
         Assert.Equal(expectedBookings, actualBookings);
     }
 
-    private static string CreateCsvFile(params string[] lines)
+    private string SetupFile(params string[] lines)
     {
-        var filePath = Path.GetTempFileName();
-        File.WriteAllLines(filePath, ["Header", .. lines]);
-        return filePath;
+        _mockFileProvider
+            .Setup(provider => provider.Exists(FilePath))
+            .Returns(true);
+
+        _mockFileProvider
+            .Setup(provider => provider.ReadAllLines(FilePath))
+            .Returns(["Header", .. lines]);
+
+        return FilePath;
     }
 
     private static string ValidFlightLine()

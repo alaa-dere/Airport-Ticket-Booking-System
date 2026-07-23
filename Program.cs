@@ -11,6 +11,7 @@ using TASK2.Services.Bookings;
 using TASK2.Services.Flights;
 using TASK2.Services.Validation;
 using TASK2.Presentation.Readers;
+using TASK2.File_Storage;
 class Program
 {
     static void Main(string[] args)
@@ -23,9 +24,10 @@ class Program
         IBookingRepository bookingRepository = flightBookingRepository;
         IAuthService authService = new AuthService(userRepository);
         IValidationService validationService = new ValidationService(flightRepository);
+        IFileProvider fileProvider = new FileProvider();
         IFlightService flightService = new FlightService(flightRepository);
         IBookingService bookingService = new BookingService(bookingRepository);
-        IManagerService managerService = new ManagerService(flightService, bookingService, validationService);
+        IManagerService managerService = new ManagerService(flightService, bookingService, validationService, fileProvider);
         IPassengerService passengerService = new PassengerService(flightService, bookingService);
 
         ManagerMenu managerMenu = new ManagerMenu(managerService, consoleReader);
